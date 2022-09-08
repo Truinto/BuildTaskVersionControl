@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<DevelopmentDependency>true</DevelopmentDependency>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<IncludeBuildOutput>true</IncludeBuildOutput>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<ContentTargetFolders>build</ContentTargetFolders>
+		<Authors>Truinto</Authors>
+		<Title>Version Control</Title>
+		<Description>MSBuild Task to automate assembly versioning</Description>
+		<RepositoryUrl>https://github.com/Truinto/</RepositoryUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<FileVersion>1.0.0</FileVersion>
+		<Version>1.0.0</Version>
+		<Configurations>Debug;Release;Release Net6</Configurations>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Release Net6'">
+		<TargetFramework>net6.0</TargetFramework>
+		<Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="Test\**" />
+		<EmbeddedResource Remove="Test\**" />
+		<None Remove="Test\**" />
+		<None Remove=".gitattributes" />
+		<None Remove=".gitignore" />
+		<None Remove="BuildTaskVersionControl.1.0.0.nupkg" />
+		<None Remove="BuildTaskVersionControl.nuspec" />
+		<None Remove="LICENSE" />
+	</ItemGroup>
+
+	<!--<Import Project=".\packages\BuildTaskVersionControl.1.0.0\build\CustomTasks.props" />
+	<Target Name="Versioning" AfterTargets="Clean">
+		<Message Text="Versioning..." Importance="High" />
+		<ItemGroup>
+			<a1 Include="123" />
+			<a2 Include="456" />
+			<a3 Include="789" />
+		</ItemGroup>
+		<VersioningTask InputFile="/." UpdateFiles="@(a1);@(a2);@(a3)" />
+	</Target>-->
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Build.Framework" Version="17.3.1" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.3.1" />
+		<Reference Include="System.Net.Http" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="CustomTasks.props" />
+	</ItemGroup>
+
+</Project>

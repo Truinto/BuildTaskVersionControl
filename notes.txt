@@ -1,0 +1,4 @@
+﻿How to build release:
+- build in configuration "Release" and "Release Net6"
+- copy "lib/net6.0" and "lib/net472" into same nu-package
+- overwrite nuspec (merge dependencies)
