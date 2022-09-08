@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project TreatAsLocalProperty="CustomTaskAssembly">
+	<PropertyGroup>
+		<CustomTaskAssembly Condition="'$(MSBuildRuntimeType)' == 'Core'">$(MSBuildThisFileDirectory)..\lib\net6.0\BuildTaskVersionControl.dll</CustomTaskAssembly>
+		<CustomTaskAssembly Condition="'$(MSBuildRuntimeType)' != 'Core'">$(MSBuildThisFileDirectory)..\lib\net472\BuildTaskVersionControl.dll</CustomTaskAssembly>
+	</PropertyGroup>
+	<UsingTask TaskName="BuildTaskVersionControl.VersioningTask" AssemblyFile="$(CustomTaskAssembly)" />
+</Project>
