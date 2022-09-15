@@ -13,7 +13,7 @@
 		<Authors>Truinto</Authors>
 		<Title>Version Control</Title>
 		<Description>MSBuild Task to automate assembly versioning</Description>
-		<RepositoryUrl>https://github.com/Truinto/</RepositoryUrl>
+		<RepositoryUrl>https://github.com/Truinto/BuildTaskVersionControl</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<AssemblyVersion>1.0.1</AssemblyVersion>
 		<FileVersion>1.0.1</FileVersion>
