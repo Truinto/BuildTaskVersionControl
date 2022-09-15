@@ -17,10 +17,10 @@ namespace BuildTaskVersionControl
         public bool AutoIncrease { get; set; } = false;
 
         /// <summary>Regex string for the input file. Requires group 'version' for version string.</summary>
-        public string RegexInput { get; set; } = @"(?<!Manager)(Version.*)(?'version'[\d\.\*]{5,})";
+        public string RegexInput { get; set; } = @"(?<!Manager)(Version.*?)(?'version'[\d\.\*]{5,})";
 
         /// <summary>Regex string for output files. Is used in conjunction with RegexReplace.</summary>
-        public string RegexOutput { get; set; } = @"(?<!Manager)(Version.*)(?'version'[\d\.\*]{5,})";
+        public string RegexOutput { get; set; } = @"(?<!Manager)(Version.*?)(?'version'[\d\.\*]{5,})";
 
         /// <summary>Replacement string for output files. {version} is replaced by new version.</summary>
         public string RegexReplace { get; set; } = @"${1}{version}";
