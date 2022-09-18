@@ -2,14 +2,15 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>BuildTaskVersionControl</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>Version Control</title>
     <authors>Truinto</authors>
     <developmentDependency>true</developmentDependency>
     <license type="expression">MIT</license>
     <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <readme>README.md</readme>
     <description>MSBuild Task to automate assembly versioning</description>
-    <repository url="https://github.com/Truinto/" />
+    <repository url="https://github.com/Truinto/BuildTaskVersionControl" />
     <dependencies>
       <group targetFramework=".NETFramework4.7.2">
       </group>

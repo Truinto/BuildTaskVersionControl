@@ -24,6 +24,8 @@ namespace Test
             vt.AutoIncrease = true;
             vt.MaxMatch = 1;
             vt.Execute();
+
+            Console.WriteLine($"Output: {vt.Version} = {vt.Major}.{vt.Minor}.{vt.Build}.{vt.Revision}");
         }
     }
 

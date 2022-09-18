@@ -15,10 +15,11 @@
 		<Description>MSBuild Task to automate assembly versioning</Description>
 		<RepositoryUrl>https://github.com/Truinto/BuildTaskVersionControl</RepositoryUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<AssemblyVersion>1.0.1</AssemblyVersion>
-		<FileVersion>1.0.1</FileVersion>
-		<Version>1.0.1</Version>
+		<AssemblyVersion>1.0.2</AssemblyVersion>
+		<FileVersion>1.0.2</FileVersion>
+		<Version>1.0.2</Version>
 		<Configurations>Debug;Release;Release Net6</Configurations>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release Net6'">
@@ -29,6 +30,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Build.Framework" Version="17.3.1" />
 		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.3.1" />
+		<Reference Include="Microsoft.Build.Framework" />
 		<Reference Include="System.Net.Http" />
 	</ItemGroup>
 
@@ -46,6 +48,13 @@
 
 	<ItemGroup>
 	  <Content Include="BuildTaskVersionControl.props" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 </Project>

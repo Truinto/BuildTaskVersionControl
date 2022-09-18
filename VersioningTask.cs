@@ -28,6 +28,21 @@ namespace BuildTaskVersionControl
         /// <summary>Maximum number of lines to match and replace.</summary>
         public int MaxMatch { get; set; } = 0;
 
+        /// <summary>Extracted version string.</summary>
+        [Output] public string Version { get; private set; }
+
+        /// <summary>Extracted major version.</summary>
+        [Output] public int Major { get; private set; }
+
+        /// <summary>Extracted minor version</summary>
+        [Output] public int Minor { get; private set; }
+
+        /// <summary>Extracted build version</summary>
+        [Output] public int Build { get; private set; }
+
+        /// <summary>Extracted revision version</summary>
+        [Output] public int Revision { get; private set; }
+
         public override bool Execute()
         {
             try
@@ -36,7 +51,7 @@ namespace BuildTaskVersionControl
                 string[] lines;
                 var rxIn = new Regex(RegexInput);
                 var rxOut = new Regex(RegexOutput);
-                var rxMinor = new Regex(@"\d+");
+                var rxNumber = new Regex(@"\d+");
 
                 lines = File.ReadAllLines(this.InputFile);
                 for (int i = 0; i < lines.Length; i++)
@@ -46,6 +61,8 @@ namespace BuildTaskVersionControl
                         continue;
 
                     version = match.Groups["version"].Value;
+                    if (version == null && version == "")
+                        continue;
 
                     if (AutoIncrease)
                     {
@@ -56,6 +73,28 @@ namespace BuildTaskVersionControl
                             LogMsg("error: auto-increase failed");
                     }
 
+                    match = rxNumber.Match(version);
+                    if (match.Success)
+                    {
+                        Major = int.Parse(match.Value);
+                        match = match.NextMatch();
+                    }
+                    if (match.Success)
+                    {
+                        Minor = int.Parse(match.Value);
+                        match = match.NextMatch();
+                    }
+                    if (match.Success)
+                    {
+                        Build = int.Parse(match.Value);
+                        match = match.NextMatch();
+                    }
+                    if (match.Success)
+                    {
+                        Revision = int.Parse(match.Value);
+                    }
+
+                    this.Version = version;
                     LogMsg($"Read version as {version}");
                     version = RegexReplace.Replace("{version}", version);
                     break;
