@@ -10,17 +10,34 @@ Settings
 * RegexOutput: Regex string for output files. Is used in conjunction with RegexReplace. Default: `"(?<!Manager)(Version.*?)(?'version'[\d\.\*]{5,})"`
 * RegexReplace: Replacement string for output files. `{version}` is replaced by new version. Default: `"${1}{version}"`
 * MaxMatch: Maximum number of lines to match and replace. 0 or less will replace all.
+* Version: [Output] Extracted version string.
+* Major: [Output] Extracted major version.
+* Minor: [Output] Extracted minor version.
+* Build: [Output] Extracted build version.
+* Revision: [Output] Extracted revision version.
 
 Example
 -----------
 ```xml
-  <Target Name="Versioning" BeforeTargets="Build">
+  <Target Name="Versioning" BeforeTargets="PreBuildEvent">
     <Message Text="Start version control" Importance="High" />
     <ItemGroup>
       <a1 Include="input.txt" />
       <a2 Include="output1.txt" />
       <a3 Include="output2.txt" />
     </ItemGroup>
-    <VersioningTask InputFile="input.txt" UpdateFiles="@(a1);@(a2);@(a3)" AutoIncrease="true" />
+    <VersioningTask InputFile="input.txt" UpdateFiles="@(a1);@(a2);@(a3)" AutoIncrease="true">
+      <Output TaskParameter="Version" ItemName="OutputVersionControl" />
+    </VersioningTask>
+    <Message Text="Finish version control @(OutputVersionControl)" Importance="High" />
   </Target>
+```
+
+Tip
+-----------
+With NET.Sdk use ExcludeAssets="runtime" so the dll doesn't copy to output.
+```xml
+	<ItemGroup>
+	  <PackageReference Include="BuildTaskVersionControl" Version="1.0.2" ExcludeAssets="runtime" />
+	</ItemGroup>
 ```
