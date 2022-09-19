@@ -5,11 +5,12 @@ Settings
 -----------
 * InputFile: [Required] Path to file to extract version string. Use RegexInput to customize logic.
 * UpdateFiles: [Required] Path to files to inject with new version string. Use RegexOutput to customize logic.
-* AutoIncrease: If true, will increase version by one before updating files. If you use this, it's recommended to include InputFile in UpdateFiles. Does not work with '*' wildcard.
+* AutoIncrease: If true, will increase version by one before updating files. If you use this, it's recommended to include InputFile in UpdateFiles. Does not work with '*' wildcard. Default: false
 * RegexInput: Regex string for the input file. Requires group 'version' for version string. Default: `"(?<!Manager)(Version.*?)(?'version'[\d\.\*]{5,})"`
 * RegexOutput: Regex string for output files. Is used in conjunction with RegexReplace. Default: `"(?<!Manager)(Version.*?)(?'version'[\d\.\*]{5,})"`
 * RegexReplace: Replacement string for output files. `{version}` is replaced by new version. Default: `"${1}{version}"`
-* MaxMatch: Maximum number of lines to match and replace. 0 or less will replace all.
+* TouchFiles: Update write-date when updating output files. Default: true
+* MaxMatch: Maximum number of lines to match and replace. 0 or less will replace all. Default: 0
 * Version: [Output] Extracted version string.
 * Major: [Output] Extracted major version.
 * Minor: [Output] Extracted minor version.
@@ -38,6 +39,6 @@ Tip
 With NET.Sdk use ExcludeAssets="runtime" so the dll doesn't copy to output.
 ```xml
 	<ItemGroup>
-	  <PackageReference Include="BuildTaskVersionControl" Version="1.0.2" ExcludeAssets="runtime" />
+	  <PackageReference Include="BuildTaskVersionControl" Version="1.0.3" ExcludeAssets="runtime" />
 	</ItemGroup>
 ```

@@ -16,9 +16,9 @@
 		<Description>MSBuild Task to automate assembly versioning</Description>
 		<PackageProjectUrl>https://github.com/Truinto/BuildTaskVersionControl</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<AssemblyVersion>1.0.2</AssemblyVersion>
-		<FileVersion>1.0.2</FileVersion>
-		<Version>1.0.2</Version>
+		<AssemblyVersion>1.0.3</AssemblyVersion>
+		<FileVersion>1.0.3</FileVersion>
+		<Version>1.0.3</Version>
 		<Configurations>Debug;Release;Release Net6</Configurations>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>

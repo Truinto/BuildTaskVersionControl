@@ -28,6 +28,9 @@ namespace BuildTaskVersionControl
         /// <summary>Maximum number of lines to match and replace.</summary>
         public int MaxMatch { get; set; } = 0;
 
+        /// <summary>Update write-date when updating output files.</summary>
+        public bool TouchFiles { get; set; } = true;
+
         /// <summary>Extracted version string.</summary>
         [Output] public string Version { get; private set; }
 
@@ -131,7 +134,10 @@ namespace BuildTaskVersionControl
 
                     if (save)
                     {
+                        var date = File.GetLastWriteTimeUtc(file.ItemSpec);
                         File.WriteAllLines(file.ItemSpec, lines);
+                        if (!TouchFiles)
+                            File.SetLastWriteTimeUtc(file.ItemSpec, date);
                     }
                 }
 
