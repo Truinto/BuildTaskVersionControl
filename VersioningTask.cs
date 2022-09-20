@@ -137,7 +137,7 @@ namespace BuildTaskVersionControl
                         var date = File.GetLastWriteTimeUtc(file.ItemSpec);
                         File.WriteAllLines(file.ItemSpec, lines);
                         if (!TouchFiles)
-                            File.SetLastWriteTimeUtc(file.ItemSpec, date);
+                            File.SetLastWriteTimeUtc(file.ItemSpec, date.AddSeconds(2));
                     }
                 }
 

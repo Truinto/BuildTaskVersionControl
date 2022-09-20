@@ -23,22 +23,49 @@ Example
   <Target Name="Versioning" BeforeTargets="PreBuildEvent">
     <Message Text="Start version control" Importance="High" />
     <ItemGroup>
-      <a1 Include="input.txt" />
-      <a2 Include="output1.txt" />
-      <a3 Include="output2.txt" />
+      <a1 Include="output1.txt" />
+      <a2 Include="output2.txt" />
     </ItemGroup>
-    <VersioningTask InputFile="input.txt" UpdateFiles="@(a1);@(a2);@(a3)" AutoIncrease="true">
+    <VersioningTask InputFile="input.txt" UpdateFiles="@(a1);@(a2)">
       <Output TaskParameter="Version" ItemName="OutputVersionControl" />
     </VersioningTask>
     <Message Text="Finish version control @(OutputVersionControl)" Importance="High" />
   </Target>
 ```
 
-Tip
+Tips
 -----------
-With NET.Sdk use ExcludeAssets="runtime" so the dll doesn't copy to output.
+With MSBuild 17 use ExcludeAssets="runtime" so the dll doesn't copy to output.
 ```xml
 	<ItemGroup>
 	  <PackageReference Include="BuildTaskVersionControl" Version="1.0.3" ExcludeAssets="runtime" />
 	</ItemGroup>
+```
+\
+When you want to auto-increase version while using MSBuild 17, disable GenerateAssemblyInfo and use AutoIncrease=true and TouchFiles=false.
+```xml
+	<PropertyGroup>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	</PropertyGroup>
+	<Target Name="Versioning" BeforeTargets="PreBuildEvent">
+		<ItemGroup>
+			<a1 Include="Properties\AssemblyInfo.cs" />
+			<a2 Include="output1.txt" />
+			<a3 Include="output2.txt" />
+		</ItemGroup>
+		<VersioningTask InputFile="@(a1)" UpdateFiles="@(a1);@(a2);@(a3)" AutoIncrease="true" TouchFiles="false">
+			<Output TaskParameter="Version" ItemName="OutputVersionControl" />
+		</VersioningTask>
+		<Message Text="Finish version control @(OutputVersionControl)" Importance="High" />
+	</Target>
+
+<!--
+Content of 'Properties\AssemblyInfo.cs'
+
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+[assembly: AssemblyVersion("1.0.18")]
+[assembly: AssemblyFileVersion("1.0.18")]
+-->
 ```
