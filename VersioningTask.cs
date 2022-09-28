@@ -120,7 +120,7 @@ namespace BuildTaskVersionControl
                         if (!match.Success)
                             continue;
 
-                        var line = rxIn.Replace(lines[i], version);
+                        var line = rxOut.Replace(lines[i], version);
                         if (line != lines[i])
                         {
                             lines[i] = line;
