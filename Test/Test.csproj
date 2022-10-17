@@ -9,11 +9,6 @@
 		<Title>Tester</Title>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<OutputType>Exe</OutputType>
-		<Configurations>Debug;Release;Release Net6</Configurations>
-	</PropertyGroup>
-	
-	<PropertyGroup Condition="'$(Configuration)' == 'Release Net6'">
-		<TargetFramework>net6.0</TargetFramework>
 	</PropertyGroup>
 
 	<ItemGroup>

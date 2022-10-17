@@ -1,9 +1,11 @@
 ﻿using BuildTaskVersionControl;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,6 +21,8 @@ namespace Test
             //File.WriteAllText("output.txt", "[assembly: AssemblyVersion(\"1.0.0\")]\r\n[assembly: AssemblyFileVersion(\"1.0.0\")]");
 
             var vt = new VersioningTask();
+            //typeof(VersioningTask).GetProperty("Log", (BindingFlags)60).SetValue(vt, new TaskLoggingHelper(vt));
+
             vt.InputFile = "input.txt";
             vt.UpdateFiles = new ITaskItem[] { new Item("input.txt"), new Item("output.txt") };
             vt.AutoIncrease = true;

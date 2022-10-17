@@ -156,6 +156,7 @@ namespace BuildTaskVersionControl
         {
 #if DEBUG
             Debug.WriteLine(msg);
+            //Log.LogMessage(importance, msg);
 #else
             Log.LogMessage(importance, msg);
 #endif
