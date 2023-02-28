@@ -11,11 +11,11 @@ Settings
 * RegexReplace: Replacement string for output files. `{version}` is replaced by new version. Default: `"${1}{version}"`
 * TouchFiles: Update write-date when updating output files. Default: true
 * MaxMatch: Maximum number of lines to match and replace. 0 or less will replace all. Default: 0
-* Version: [Output] Extracted version string.
-* Major: [Output] Extracted major version.
-* Minor: [Output] Extracted minor version.
-* Build: [Output] Extracted build version.
-* Revision: [Output] Extracted revision version.
+* Version: [Output] Extracted full version string.
+* Major: [Output] Extracted major version only.
+* Minor: [Output] Extracted minor version only.
+* Build: [Output] Extracted build version only.
+* Revision: [Output] Extracted revision version only.
 
 Example
 -----------
@@ -23,25 +23,18 @@ Example
 <Target Name="Versioning" BeforeTargets="PreBuildEvent">
   <Message Text="Start version control" Importance="High" />
   <ItemGroup>
-    <a1 Include="output1.txt" />
-    <a2 Include="output2.txt" />
+    <VersioningOutput Include="output1.txt" />
+    <VersioningOutput Include="output2.txt" />
   </ItemGroup>
-  <VersioningTask InputFile="input.txt" UpdateFiles="@(a1);@(a2)">
-    <Output TaskParameter="Version" ItemName="OutputVersionControl" />
+  <VersioningTask InputFile="input.txt" UpdateFiles="@(VersioningOutput)">
+    <Output TaskParameter="Version" ItemName="OutputVersionText" />
   </VersioningTask>
-  <Message Text="Finish version control @(OutputVersionControl)" Importance="High" />
+  <Message Text="Finish version control @(OutputVersionText)" Importance="High" />
 </Target>
 ```
 
 Tips
 -----------
-With MSBuild 17 use ExcludeAssets="runtime" so the dll doesn't copy to output.
-```xml
-<ItemGroup>
-  <PackageReference Include="BuildTaskVersionControl" Version="1.0.4" ExcludeAssets="runtime" />
-</ItemGroup>
-```
-\
 When you want to auto-increase version while using MSBuild 17, disable GenerateAssemblyInfo and use AutoIncrease=true and TouchFiles=false.
 ```xml
 <PropertyGroup>
@@ -49,14 +42,15 @@ When you want to auto-increase version while using MSBuild 17, disable GenerateA
 </PropertyGroup>
 <Target Name="Versioning" BeforeTargets="PreBuildEvent">
   <ItemGroup>
-    <a1 Include="Properties\AssemblyInfo.cs" />
-    <a2 Include="output1.txt" />
-    <a3 Include="output2.txt" />
+    <VersioningInput Include="Properties\AssemblyInfo.cs" />
+    <VersioningOutput Include="Properties\AssemblyInfo.cs" />
+    <VersioningOutput Include="output1.txt" />
+    <VersioningOutput Include="output2.txt" />
   </ItemGroup>
-  <VersioningTask InputFile="@(a1)" UpdateFiles="@(a1);@(a2);@(a3)" AutoIncrease="true" TouchFiles="false">
-    <Output TaskParameter="Version" ItemName="OutputVersionControl" />
+  <VersioningTask InputFile="@(VersioningInput)" UpdateFiles="@(VersioningOutput)" AutoIncrease="true" TouchFiles="false">
+    <Output TaskParameter="Version" ItemName="OutputVersionText" />
   </VersioningTask>
-  <Message Text="Finish version control @(OutputVersionControl)" Importance="High" />
+  <Message Text="Finish version control @(OutputVersionText)" Importance="High" />
 </Target>
 
 <!--

@@ -5,6 +5,10 @@ using System.Text.RegularExpressions;
 
 namespace BuildTaskVersionControl
 {
+    /// <summary>
+    /// Task to read a version string from a file and update it to files.<br/>
+    /// Customizeable with regex and build in auto increment.
+    /// </summary>
     public class VersioningTask : Microsoft.Build.Utilities.Task
     {
         /// <summary>Path to file to extract version string. Use RegexInput to customize logic.</summary>
@@ -46,6 +50,9 @@ namespace BuildTaskVersionControl
         /// <summary>Extracted revision version</summary>
         [Output] public int Revision { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public override bool Execute()
         {
             try
@@ -55,6 +62,12 @@ namespace BuildTaskVersionControl
                 var rxIn = new Regex(RegexInput);
                 var rxOut = new Regex(RegexOutput);
                 var rxNumber = new Regex(@"\d+");
+
+                if (!File.Exists(this.InputFile))
+                {
+                    LogMsg("error: input file doesn't exist " + this.InputFile);
+                    return false;
+                }
 
                 lines = File.ReadAllLines(this.InputFile);
                 for (int i = 0; i < lines.Length; i++)
@@ -109,8 +122,14 @@ namespace BuildTaskVersionControl
                     return false;
                 }
 
-                foreach (var file in UpdateFiles)
+                foreach (var file in this.UpdateFiles)
                 {
+                    if (!File.Exists(file.ItemSpec))
+                    {
+                        LogMsg("error: file doesn't exist " + file.ItemSpec);
+                        continue;
+                    }
+
                     bool save = false;
                     int counter = 0;
                     lines = File.ReadAllLines(file.ItemSpec);
