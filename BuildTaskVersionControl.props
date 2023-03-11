@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project TreatAsLocalProperty="CustomTaskAssembly">
 	<PropertyGroup>
-		<CustomTaskAssembly Condition="'$(MSBuildRuntimeType)' == 'Core'">$(MSBuildThisFileDirectory)..\tasks\net6.0\BuildTaskVersionControl.dll</CustomTaskAssembly>
-		<CustomTaskAssembly Condition="'$(MSBuildRuntimeType)' != 'Core'">$(MSBuildThisFileDirectory)..\tasks\net472\BuildTaskVersionControl.dll</CustomTaskAssembly>
+		<CustomTaskAssembly>$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\$(MSBuildThisFileName).dll</CustomTaskAssembly>
 	</PropertyGroup>
 	<UsingTask TaskName="BuildTaskVersionControl.VersioningTask" AssemblyFile="$(CustomTaskAssembly)" />
+
+	<Target Name="BuildTaskVersionControl_Task" BeforeTargets="PreBuildEvent" Condition="$(AutoVersion)=='true' or @(BuildTaskVersionControl_In)!=''">
+		<VersioningTask InputFiles="@(BuildTaskVersionControl_In)" UpdateFiles="@(BuildTaskVersionControl_Out)" AutoIncrease="true">
+			<Output TaskParameter="VersionFull" PropertyName="Version" />
+		</VersioningTask>
+	</Target>
 </Project>

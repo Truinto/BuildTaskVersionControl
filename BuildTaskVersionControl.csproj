@@ -1,50 +1,50 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net472;net6.0</TargetFrameworks>
+		<Version>1.1.0</Version>
+
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
-		<DevelopmentDependency>true</DevelopmentDependency>
-		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<IncludeBuildOutput>true</IncludeBuildOutput>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<NoPackageAnalysis>true</NoPackageAnalysis>
-		<BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
 		<DebugType>none</DebugType>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<!--<ContentTargetFolders>build</ContentTargetFolders>-->
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<!-- Change the default location where NuGet will put the build output -->
+		<BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+		<!-- Suppresses the warnings about the package not having assemblies in lib/*/.dll.-->
+		<NoPackageAnalysis>true</NoPackageAnalysis>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+		<PackageTags>version;msbuild;mstask;task</PackageTags>
+
 		<Authors>Truinto</Authors>
 		<Title>Version Control</Title>
 		<Description>MSBuild Task to automate assembly versioning</Description>
 		<PackageProjectUrl>https://github.com/Truinto/BuildTaskVersionControl</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<AssemblyVersion>1.0.5</AssemblyVersion>
-		<FileVersion>1.0.5</FileVersion>
-		<Version>1.0.5</Version>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageTags>version;msbuild;mstask;task</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Build.Framework" Version="17.3.1" />
-		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.3.1" />
+		<PackageReference Include="Microsoft.Build.Framework" Version="17.5.0" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.5.0" />
 		<Reference Include="System.Net.Http" Version="4.3.4" Condition="'$(TargetFramework)'=='net472'" />
 		<Reference Update="@(Reference)" Pack="false" PrivateAssets="All" ExcludeAssets="runtime" CopyLocal="false" Publish="false" />
 		<PackageReference Update="@(PackageReference)" Pack="false" PrivateAssets="All" ExcludeAssets="runtime" CopyLocal="false" Publish="false" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Remove=".gitattributes" />
+		<None Remove=".gitignore" />
 		<Compile Remove="Test\**" />
 		<EmbeddedResource Remove="Test\**" />
 		<None Remove="Test\**" />
-		<None Remove="BuildTaskVersionControl.props" />
-	</ItemGroup>
 
-	<ItemGroup>
+		<Compile Remove="GithubVersion.cs" />
+
 		<Content Include="BuildTaskVersionControl.props" Pack="true" PackagePath="build\" />
-		<Content Include="BuildTaskVersionControl.props" Pack="true" PackagePath="buildMultiTargeting\" />
+		<!--<Content Include="BuildTaskVersionControl.props" Pack="true" PackagePath="buildMultiTargeting\" />-->
 		<None Include="README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
