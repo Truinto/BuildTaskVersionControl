@@ -70,8 +70,7 @@ namespace BuildTaskVersionControl
         /// <summary>Extracted version suffix.</summary>
         [Output] public string Suffix { get; private set; }
 
-        /// <summary>
-        /// </summary>
+        /// <summary></summary>
         public enum Operation
         {
             /// <summary></summary>
@@ -84,15 +83,12 @@ namespace BuildTaskVersionControl
             Always,
         }
 
-        private class Data
-        {
-            public List<ITaskItem> inputs;
-            public List<ITaskItem> outputs;
-            public Regex rxIn;
-            public Regex rxOut;
-            public Version version;
-            public string suffix;
-        }
+        private List<ITaskItem> inputs;
+        private List<ITaskItem> outputs;
+        private Regex rxIn;
+        private Regex rxOut;
+        private Version version;
+        private string suffix;
 
         /// <summary>
         /// Run task.
@@ -101,33 +97,32 @@ namespace BuildTaskVersionControl
         {
             try
             {
-                var d = new Data
-                {
-                    inputs = new(this.InputFiles),
-                    outputs = new(this.UpdateFiles),
-                    rxIn = new Regex(this.RegexInput, RegexOptions.Compiled | RegexOptions.CultureInvariant),
-                    rxOut = new Regex(this.RegexOutput, RegexOptions.Compiled | RegexOptions.CultureInvariant),
-                    version = new(),
-                    suffix = "",
-                };
+                LogMsg($"Start VersioningTask auto={this.AutoIncrease} max={this.MaxMatch} touch={this.TouchFiles}", MessageImportance.Normal);
+
+                inputs = new(this.InputFiles);
+                outputs = new(this.UpdateFiles);
+                rxIn = new Regex(this.RegexInput, RegexOptions.Compiled | RegexOptions.CultureInvariant);
+                rxOut = new Regex(this.RegexOutput, RegexOptions.Compiled | RegexOptions.CultureInvariant);
+                version = new();
+                suffix = "";
 
                 // try autofill, if no input given
-                Autofill(d);
+                Autofill();
 
                 // search for greatest input version
-                ParseInput(d);
+                ParseInput();
 
-                if (d.version == new Version())
+                if (version == new Version())
                 {
                     LogMsg("error: no input version");
                     return false;
                 }
 
                 // set output properties; increment revision by 1 if AutoIncrease
-                SetOutValues(d);
+                SetOutValues();
 
                 // write to output files
-                DoUpdate(d);
+                DoUpdate();
 
                 LogMsg("Version updated!");
 
@@ -140,52 +135,57 @@ namespace BuildTaskVersionControl
             }
         }
 
-        private void Autofill(Data d)
+        private void Autofill()
         {
             if (this.InputFile != null)
-                d.inputs.Insert(0, this.InputFile);
-            else if (d.inputs.Count <= 0)
+                inputs.Insert(0, this.InputFile);
+            else if (inputs.Count <= 0)
             {
+                LogMsg($"No input files, searching...", MessageImportance.Low);
                 TaskItem item;
                 if (File.Exists("changelog.md"))
                 {
                     item = new TaskItem("changelog.md");
-                    d.inputs.Add(item);
+                    inputs.Add(item);
+                    LogMsg($" added changelog.md", MessageImportance.Low);
                 }
 
-                if (File.Exists("Properties\\AssemblyInfo.cs"))
+                if (File.Exists(Path.Combine("Properties", "AssemblyInfo.cs")))
                 {
-                    item = new TaskItem("Properties\\AssemblyInfo.cs");
+                    item = new TaskItem(Path.Combine("Properties", "AssemblyInfo.cs"));
                     item.SetMetadata("Max", "2");
-                    d.inputs.Add(item);
+                    inputs.Add(item);
                     if (this.AutoIncrease)
-                        d.outputs.Add(item);
+                        outputs.Add(item);
+                    LogMsg($" added assemblyinfo.cs {this.AutoIncrease}", MessageImportance.Low);
                 }
                 else if (File.Exists(this.BuildEngine?.ProjectFileOfTaskNode) && this.BuildEngine.ProjectFileOfTaskNode.EndsWith(".csproj"))
                 {
                     item = new TaskItem(this.BuildEngine.ProjectFileOfTaskNode);
-                    d.inputs.Add(item);
+                    inputs.Add(item);
                     if (this.AutoIncrease)
-                        d.outputs.Add(item);
+                        outputs.Add(item);
+                    LogMsg($" added {this.BuildEngine.ProjectFileOfTaskNode} {this.AutoIncrease}", MessageImportance.Low);
                 }
                 else
                 {
                     foreach (string path in Directory.EnumerateFiles(".", "*.csproj"))
                     {
                         item = new TaskItem(path);
-                        d.inputs.Add(item);
+                        inputs.Add(item);
                         if (this.AutoIncrease)
-                            d.outputs.Add(item);
+                            outputs.Add(item);
+                        LogMsg($" added {path} {this.AutoIncrease}", MessageImportance.Low);
                     }
                 }
             }
         }
 
-        private void ParseInput(Data d)
+        private void ParseInput()
         {
             Capture c;
 
-            foreach (var item in d.inputs)
+            foreach (var item in inputs)
             {
                 string path = item.ItemSpec;
                 if (!File.Exists(path))
@@ -204,7 +204,7 @@ namespace BuildTaskVersionControl
 
                 // meta override regex
                 string text = item.GetMetadata("Regex");
-                Regex rx = text.Length > 0 ? new Regex(text) : d.rxIn;
+                Regex rx = text.Length > 0 ? new Regex(text) : rxIn;
 
                 foreach (string line in File.ReadLines(path))
                 {
@@ -218,13 +218,13 @@ namespace BuildTaskVersionControl
                             continue;
                     LogMsg($"Parsed entry '{match.Value}' in '{path}'", MessageImportance.Normal);
 
-                    var version = new Version(c.Value);
-                    if (version <= d.version)
+                    var version2 = new Version(c.Value);
+                    if (version2 <= version)
                         continue;
 
-                    d.version = version;
+                    version = version2;
                     if ((c = match.Groups["suffix"]).Length > 0)
-                        d.suffix = c.Value;
+                        suffix = c.Value;
 
                     if (--max <= 0)
                         break;
@@ -232,28 +232,28 @@ namespace BuildTaskVersionControl
             }
         }
 
-        private void SetOutValues(Data d)
+        private void SetOutValues()
         {
-            int revision = this.AutoIncrease ? d.version.Revision + 1 : Math.Max(0, d.version.Revision);
-            this.VersionShort = $"{d.version.Major}.{d.version.Minor}.{Math.Max(0, d.version.Build)}";
+            int revision = this.AutoIncrease ? version.Revision + 1 : Math.Max(0, version.Revision);
+            this.VersionShort = $"{version.Major}.{version.Minor}.{Math.Max(0, version.Build)}";
             this.Version = $"{this.VersionShort}.{revision}";
-            this.Suffix = d.suffix;
+            this.Suffix = suffix;
             this.VersionFull = $"{this.Version}{this.Suffix}";
             LogMsg($"Read version as {this.VersionFull}");
 
-            this.Major = d.version.Major;
-            this.Minor = d.version.Minor;
-            this.Build = d.version.Build;
-            this.Revision = d.version.Revision;
+            this.Major = version.Major;
+            this.Minor = version.Minor;
+            this.Build = version.Build;
+            this.Revision = version.Revision;
 
             this.RegexReplace = this.RegexReplace.Replace("{suffix}", this.Suffix);
         }
 
-        private void DoUpdate(Data d)
+        private void DoUpdate()
         {
             Capture c;
 
-            foreach (var item in this.UpdateFiles)
+            foreach (var item in outputs)
             {
                 string path = item.ItemSpec;
                 if (!File.Exists(path))
@@ -272,7 +272,7 @@ namespace BuildTaskVersionControl
 
                 // meta override regex
                 string text = item.GetMetadata("Regex");
-                Regex rx = text.Length > 0 ? new Regex(text) : d.rxOut;
+                Regex rx = text.Length > 0 ? new Regex(text) : rxOut;
 
                 // meta override DropRevision
                 text = item.GetMetadata("DropRevision");
@@ -329,10 +329,8 @@ namespace BuildTaskVersionControl
                 {
                     var date = File.GetLastWriteTimeUtc(path);
                     File.WriteAllLines(path, lines);
-
-                    // reseting write time on csproj files makes it so it isn't seen as edited (which would force a recompile every time)
                     if (!touch)
-                        File.SetLastWriteTimeUtc(path, date/*.AddSeconds(-1)*/);
+                        File.SetLastWriteTimeUtc(path, date.AddSeconds(1));
                 }
             }
         }
@@ -341,11 +339,9 @@ namespace BuildTaskVersionControl
         {
             if (this.Silent)
                 return;
-#if DEBUG
+
             Debug.WriteLine(msg);
-#else
             this.Log.LogMessage(importance, msg);
-#endif
         }
     }
 }

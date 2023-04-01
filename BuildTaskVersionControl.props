@@ -4,9 +4,11 @@
 		<CustomTaskAssembly>$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\$(MSBuildThisFileName).dll</CustomTaskAssembly>
 	</PropertyGroup>
 	<UsingTask TaskName="BuildTaskVersionControl.VersioningTask" AssemblyFile="$(CustomTaskAssembly)" />
+	<UsingTask TaskName="BuildTaskVersionControl.ZipTask" AssemblyFile="$(CustomTaskAssembly)" />
+	<UsingTask TaskName="BuildTaskVersionControl.GitRemoteTask" AssemblyFile="$(CustomTaskAssembly)" />
 
-	<Target Name="BuildTaskVersionControl_Task" BeforeTargets="PreBuildEvent" Condition="$(AutoVersion)=='true' or @(BuildTaskVersionControl_In)!=''">
-		<VersioningTask InputFiles="@(BuildTaskVersionControl_In)" UpdateFiles="@(BuildTaskVersionControl_Out)" AutoIncrease="true">
+	<Target Name="VersioningTask_Auto" BeforeTargets="BeforeBuild" Condition="'$(AutoVersion)'=='true' or '@(VersioningTask_In)'!=''">
+		<VersioningTask InputFiles="@(VersioningTask_In)" UpdateFiles="@(VersioningTask_Out)" AutoIncrease="true" MaxMatch="1" DropRevision="never">
 			<Output TaskParameter="VersionFull" PropertyName="Version" />
 		</VersioningTask>
 	</Target>

@@ -1,8 +1,26 @@
 ﻿# BuildTaskVersionControl
+[![NuGet version (BuildTaskVersionControl)](https://img.shields.io/nuget/v/BuildTaskVersionControl.svg?style=flat-square)](https://www.nuget.org/packages/BuildTaskVersionControl/) \
 MSBuild Task to automate assembly versioning. Extracts a version string from one file and update it in other files.
 
-Settings
------------
+## Index
+  - [VersionTask](#versiontask)
+    - [Settings](#settings)
+    - [Item Metadata](#item-metadata)
+    - [Minimal Example](#minimal-example)
+    - [Example](#example)
+    - [Tips](#tips)
+  - [GitRemoteTask](#gitremotetask)
+    - [Settings](#settings-1)
+    - [Example](#example-1)
+    - [Tips](#tips-1)
+  - [ZipTask](#ziptask)
+    - [Settings](#settings-2)
+    - [Example](#example-2)
+
+## VersionTask
+MSBuild Task to automate assembly versioning. Extracts a version string from one file and update it in other files.
+
+### Settings
 * InputFile: Legacy value. Value is added to InputFiles. Default: null
 * InputFiles: Path to files to extract version string. Only the greatest value is used. Use RegexInput to customize logic. Default: changelog.md and either Properties\AssemblyInfo.cs or all csproj in ProjectDir
 * UpdateFiles: Path to files to inject with new version string. Use RegexOutput to customize logic. Default: null
@@ -23,8 +41,7 @@ Settings
 * Revision: [Output] Extracted revision version only.
 * Suffix: [Output] Extracted version suffix
 
-Item Metadata
------------
+### Item Metadata
 Files can have metadata defined, which overwrite the global setting.
 * Max: Maximum number of matches for this file only.
 * Regex: Regex used for this file only.
@@ -32,8 +49,7 @@ Files can have metadata defined, which overwrite the global setting.
 * DropRevision: UpdateFiles only. Whenever to drop revision before updating files. (never, always, keep)
 * Touch: UpdateFiles only. Update write-date when updating output files.
 
-Minimal Example
------------
+### Minimal Example
 Set this as the first entry in your csproj file. Add or remove in- and out-files as you like.
 ```xml
   <PropertyGroup>
@@ -41,17 +57,16 @@ Set this as the first entry in your csproj file. Add or remove in- and out-files
     <AutoVersion>true</AutoVersion>
   </PropertyGroup>
   <ItemGroup>
-    <BuildTaskVersionControl_In Include="$(MSBuildProjectName).csproj" />
-    <BuildTaskVersionControl_In Include="changelog.md" />
-    <BuildTaskVersionControl_Out Include="$(MSBuildProjectName).csproj" />
-    <BuildTaskVersionControl_Out Include="changelog.md" />
+    <VersioningTask_In Include="$(MSBuildThisFileFullPath)" />
+    <VersioningTask_In Include="changelog.md" />
+    <VersioningTask_Out Include="$(MSBuildThisFileFullPath)" />
+    <VersioningTask_Out Include="changelog.md" />
   </ItemGroup>
 ```
 
-Example
------------
+### Example
 ```xml
-<Target Name="Versioning" BeforeTargets="PreBuildEvent">
+<Target Name="Versioning" BeforeTargets="BeforeBuild">
   <Message Text="Start version control" Importance="High" />
   <ItemGroup>
     <_In Include="$(MSBuildProjectName).csproj" />
@@ -67,8 +82,53 @@ Example
 </Target>
 ```
 
-Tips
------------
-* Setting the property 'AutoVersion' to true, will run the default target. It will use the items 'BuildTaskVersionControl_In' and 'BuildTaskVersionControl_Out' as InputFiles and UpdateFiles respectively.
+### Tips
+* Setting the property 'AutoVersion' to true, will run the default target. It will use the items 'VersioningTask_In' and 'VersioningTask_Out' as InputFiles and UpdateFiles respectively.
 * Consider using AssemblyInfo.cs to set your project's version. [Link](https://learn.microsoft.com/en-US/troubleshoot/developer/visualstudio/general/assembly-version-assembly-file-version)
 
+## GitRemoteTask
+Task to read remote repository commit history and download files on change. Requires GIT to be installed!
+
+### Settings
+* Url: [Required] Url of remote repository. May or may not contain '.git' extension.
+* RepoPath: Branch or branch path. Will try to find HEAD, if empty string. Example: `master` Default: `refs/heads/master`
+* Interval: TimeSpan to wait between remote check. Format: `[days].[hours]:[minutes]` Example: `1.12:00` (1 day 12 hours) Default: `0.18:00`
+* DownloadOnChange: Collection of files to download or update, whenever the repository's Id changes. Set metadata 'Url' to an url to download from. The url can include #(Filename)#(Extension) to copy the filename and extension from the file path. If a relative name is given, then the url is taken from the repository Url (Github). Default: empty
+* CachePath: File last update date is saved to. Default: `obj/remote.cache`
+* SurpressErrors: Whenever to throw an error, if remote connection fails. Default: 
+* Force: Whenever to force download, even if repository is unchanged. Default: false
+* Silent: Suppress all log output. Default: false
+* Id: [Output] Latest commit id (usually hash).
+* NeedsUpdate: [Output] True if Id has changed.
+
+### Example
+```xml
+<Target Name="GithubUpdate" BeforeTargets="BeforeBuild;Clean">
+  <ItemGroup>
+    <_Download Include="Downloads\README.md" Url="#(Filename)#(Extension)" />
+  </ItemGroup>
+  <GitRemoteTask Url="https://github.com/Truinto/BuildTaskVersionControl.git" DownloadOnChange="@(_Download)" />
+</Target>
+```
+
+### Tips
+* Files in the destination will be overwritten. You can also use wildcards (*, ?), if all target files already exist in the destination folder.
+
+## ZipTask
+Simple zip task.
+
+### Settings
+* ZipFileName: [Required] Path and name of the zip file.
+* Files: [Required] Files to zip. Use metadata 'Path' to overwrite path inside the zip.
+* WorkingDirectory: Working directory from which the path inside the zip is determined. If path cannot be reached, then file is put in a dot folder. Ignored if metadata 'Path' is set manually. Default: null
+* Silent: Suppress all log output. Default: false
+
+### Example
+```xml
+<Target Name="Zipping" AfterTargets="PostBuildEvent">
+  <ItemGroup>
+    <_Zip Include="*.dll" />
+  </ItemGroup>
+  <ZipTask ZipFileName="archive.zip" WorkingDirectory="." Files="@(_Zip)" />
+</Target>
+```

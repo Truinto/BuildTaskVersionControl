@@ -18,7 +18,14 @@
 		<PackageReference Include="coverlet.collector" Version="3.1.2" />
 		<Reference Include="Microsoft.Build.Framework" />
 		
+		<PackageReference Include="LibGit2Sharp" Version="0.26.2" />
+		<PackageReference Include="DotNetZip" Version="1.16.0" />
+
 		<ProjectReference Include="..\BuildTaskVersionControl.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<GlobalAnalyzerConfigFiles Include="..\.globalconfiguration" Link=".globalconfiguration" />
 	</ItemGroup>
 
 </Project>

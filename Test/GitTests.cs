@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using Moq;
+using System.Reflection;
 
 namespace BuildTaskVersionControl.Tests
 {
@@ -13,7 +14,7 @@ namespace BuildTaskVersionControl.Tests
     /// Based on https://learn.microsoft.com/en-us/visualstudio/msbuild/tutorial-test-custom-task?view=vs-2022
     /// </summary>
     [TestClass()]
-    public class VersioningTaskTests
+    public class GitTests
     {
         private List<BuildErrorEventArgs> Errors;
         private Mock<IBuildEngine> BuildEngine;
@@ -32,24 +33,22 @@ namespace BuildTaskVersionControl.Tests
         {
             Console.WriteLine("ExecuteTest");
 
-            if (!File.Exists("input.txt"))
-                File.WriteAllText("input.txt", "[assembly: AssemblyVersion(\"1.2.3\")]\r\n[assembly: AssemblyFileVersion(\"1.2.3\")]");
-            if (!File.Exists("output.txt"))
-                File.WriteAllText("output.txt", "[assembly: AssemblyVersion(\"1.0.0\")]\r\n[assembly: AssemblyFileVersion(\"1.0.0\")]");
+            var item1 = new TaskItem("Downloads/README.md");
+            item1.SetMetadata("Url", "https://github.com/Truinto/BuildTaskVersionControl/blob/master/README.md");
+            var item2 = new TaskItem("Downloads/BuildTaskVersionControlTests.csproj");
+            item2.SetMetadata("Url", "Test/#(Filename)#(Extension)");
 
-            var item = new Mock<ITaskItem>();
-            item.Setup(x => x.GetMetadata("Identity")).Returns($".\\Resources\\complete-prop.setting");
-            var vt = new VersioningTask() 
+            var vt = new GitRemoteTask()
             {
                 BuildEngine = this.BuildEngine.Object,
-                InputFile = new TaskItem("input.txt"),
-                UpdateFiles = new ITaskItem[] { new TaskItem("input.txt"), new TaskItem("output.txt") },
-                AutoIncrease = true,
-                MaxMatch = 1,
+                Url = "https://github.com/Truinto/BuildTaskVersionControl.git/",
+                Interval = "0.00:00",
+                DownloadOnChange = new ITaskItem[] { item1, item2 },
+                Force = true
             };
             var success = vt.Execute();
-            Console.WriteLine($"Output: {vt.Version} = {vt.Major}.{vt.Minor}.{vt.Build}.{vt.Revision}");
-            
+            Console.WriteLine($"Done {vt.NeedsUpdate}");
+
             Assert.IsTrue(success);
             Assert.AreEqual(this.Errors.Count, 0);
         }
