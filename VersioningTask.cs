@@ -216,15 +216,16 @@ namespace BuildTaskVersionControl
                     if ((c = match.Groups["version"]).Length <= 0)
                         if ((c = match.Groups[1]).Length <= 0)
                             continue;
+
                     LogMsg($"Parsed entry '{match.Value}' in '{path}'", MessageImportance.Normal);
 
                     var version2 = new Version(c.Value);
-                    if (version2 <= version)
-                        continue;
-
-                    version = version2;
-                    if ((c = match.Groups["suffix"]).Length > 0)
-                        suffix = c.Value;
+                    if (version2 > version)
+                    {
+                        version = version2;
+                        if ((c = match.Groups["suffix"]).Length > 0)
+                            suffix = c.Value;
+                    }
 
                     if (--max <= 0)
                         break;
