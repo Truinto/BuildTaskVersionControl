@@ -6,6 +6,7 @@
 	<UsingTask TaskName="BuildTaskVersionControl.VersioningTask" AssemblyFile="$(CustomTaskAssembly)" />
 	<UsingTask TaskName="BuildTaskVersionControl.ZipTask" AssemblyFile="$(CustomTaskAssembly)" />
 	<UsingTask TaskName="BuildTaskVersionControl.GitRemoteTask" AssemblyFile="$(CustomTaskAssembly)" />
+	<UsingTask TaskName="BuildTaskVersionControl.SleepTask" AssemblyFile="$(CustomTaskAssembly)" />
 
 	<Target Name="VersioningTask_Auto" BeforeTargets="BeforeBuild" Condition="'$(AutoVersion)'=='true' or '@(VersioningTask_In)'!=''">
 		<VersioningTask InputFiles="@(VersioningTask_In)" UpdateFiles="@(VersioningTask_Out)" AutoIncrease="true" MaxMatch="1" DropRevision="never">

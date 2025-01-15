@@ -16,6 +16,9 @@ MSBuild Task to automate assembly versioning. Extracts a version string from one
   - [ZipTask](#ziptask)
     - [Settings](#settings-2)
     - [Example](#example-2)
+  - [SleepTask](#sleeptask)
+    - [Settings](#settings-3)
+    - [Example](#example-3)
 
 ## VersionTask
 MSBuild Task to automate assembly versioning. Extracts a version string from one file and update it in other files.
@@ -84,7 +87,6 @@ Set this as the first entry in your csproj file. Add or remove in- and out-files
 
 ### Tips
 * Setting the property 'AutoVersion' to true, will run the default target. It will use the items 'VersioningTask_In' and 'VersioningTask_Out' as InputFiles and UpdateFiles respectively.
-* Consider using AssemblyInfo.cs to set your project's version. [Link](https://learn.microsoft.com/en-US/troubleshoot/developer/visualstudio/general/assembly-version-assembly-file-version)
 
 ## GitRemoteTask
 Task to read remote repository commit history and download files on change. Requires GIT to be installed!
@@ -130,5 +132,18 @@ Simple zip task.
     <_Zip Include="*.dll" />
   </ItemGroup>
   <ZipTask ZipFileName="archive.zip" WorkingDirectory="." Files="@(_Zip)" />
+</Target>
+```
+
+## SleepTask
+Simple sleep task.
+
+### Settings
+* Milliseconds: Duration of sleep. Default: 300
+
+### Example
+```xml
+<Target Name="Waiting" AfterTargets="PostBuildEvent">
+  <SleepTask Milliseconds="1000" />
 </Target>
 ```

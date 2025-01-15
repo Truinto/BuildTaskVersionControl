@@ -15,6 +15,7 @@ namespace BuildTaskVersionControl.Tests
     [TestClass()]
     public class VersioningTaskTests
     {
+        private List<BuildMessageEventArgs> Messages;
         private List<BuildErrorEventArgs> Errors;
         private Mock<IBuildEngine> BuildEngine;
 
@@ -22,9 +23,11 @@ namespace BuildTaskVersionControl.Tests
         public void Startup()
         {
             Console.WriteLine("Startup");
-            this.Errors = new List<BuildErrorEventArgs>();
+            this.Messages = new();
+            this.Errors = new();
             this.BuildEngine = new Mock<IBuildEngine>();
             this.BuildEngine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback<BuildErrorEventArgs>(e => this.Errors.Add(e));
+            this.BuildEngine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback<BuildMessageEventArgs>(this.Messages.Add);
         }
 
         [TestMethod()]
@@ -43,15 +46,21 @@ namespace BuildTaskVersionControl.Tests
             {
                 BuildEngine = this.BuildEngine.Object,
                 InputFile = new TaskItem("input.txt"),
-                UpdateFiles = new ITaskItem[] { new TaskItem("input.txt"), new TaskItem("output.txt") },
+                UpdateFiles = [new TaskItem("input.txt"), new TaskItem("output.txt")],
                 AutoIncrease = true,
                 MaxMatch = 1,
             };
             var success = vt.Execute();
             Console.WriteLine($"Output: {vt.Version} = {vt.Major}.{vt.Minor}.{vt.Build}.{vt.Revision}");
-            
+
+            foreach (var e in this.Messages)
+                Console.WriteLine($"{e.Message}");
+            Console.WriteLine($"Done {success}:{this.Errors.Count}");
+            foreach (var e in this.Errors)
+                Console.WriteLine($"{e.File}:{e.LineNumber} {e.Message}");
+
             Assert.IsTrue(success);
-            Assert.AreEqual(this.Errors.Count, 0);
+            Assert.AreEqual(0, this.Errors.Count);
         }
     }
 }

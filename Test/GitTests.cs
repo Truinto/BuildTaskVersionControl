@@ -16,6 +16,7 @@ namespace BuildTaskVersionControl.Tests
     [TestClass()]
     public class GitTests
     {
+        private List<BuildMessageEventArgs> Messages;
         private List<BuildErrorEventArgs> Errors;
         private Mock<IBuildEngine> BuildEngine;
 
@@ -23,9 +24,11 @@ namespace BuildTaskVersionControl.Tests
         public void Startup()
         {
             Console.WriteLine("Startup");
-            this.Errors = new List<BuildErrorEventArgs>();
+            this.Messages = new();
+            this.Errors = new();
             this.BuildEngine = new Mock<IBuildEngine>();
             this.BuildEngine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback<BuildErrorEventArgs>(e => this.Errors.Add(e));
+            this.BuildEngine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback<BuildMessageEventArgs>(this.Messages.Add);
         }
 
         [TestMethod()]
@@ -43,14 +46,20 @@ namespace BuildTaskVersionControl.Tests
                 BuildEngine = this.BuildEngine.Object,
                 Url = "https://github.com/Truinto/BuildTaskVersionControl.git/",
                 Interval = "0.00:00",
-                DownloadOnChange = new ITaskItem[] { item1, item2 },
+                DownloadOnChange = [item1, item2],
                 Force = true
             };
             var success = vt.Execute();
             Console.WriteLine($"Done {vt.NeedsUpdate}");
 
+            foreach (var e in this.Messages)
+                Console.WriteLine($"{e.Message}");
+            Console.WriteLine($"Done {success}:{this.Errors.Count} NeedsUpdate={vt.NeedsUpdate}");
+            foreach (var e in this.Errors)
+                Console.WriteLine($"{e.File}:{e.LineNumber} {e.Message}");
+
             Assert.IsTrue(success);
-            Assert.AreEqual(this.Errors.Count, 0);
+            Assert.AreEqual(0, this.Errors.Count);
         }
     }
 }

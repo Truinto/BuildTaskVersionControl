@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<Version>1.2.1</Version>
+		<Version>1.3.0</Version>
 
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
@@ -33,13 +33,38 @@
 		<PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.18.2" />
 
 		<!--GeneratePathProperty created properties where dot is replaced with underscore-->
-		<PackageReference Include="DotNetZip" Version="1.16.0" GeneratePathProperty="true" />
-		<PackageReference Include="System.Security.AccessControl" Version="6.0.0"  GeneratePathProperty="true" />
+		<PackageReference Include="SharpZipLib" Version="1.4.2" GeneratePathProperty="true" />
+		<!--<PackageReference Include="DotNetZip" Version="1.16.0" GeneratePathProperty="true" />-->
+		<PackageReference Include="System.Security.AccessControl" Version="6.0.0" GeneratePathProperty="true" />
 		<PackageReference Include="System.Security.Permissions" Version="6.0.0" GeneratePathProperty="true" />
-		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0"  GeneratePathProperty="true" />
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" GeneratePathProperty="true" />
 
 		<Reference Update="@(Reference)" Pack="false" PrivateAssets="All" ExcludeAssets="runtime" CopyLocal="false" Publish="false" />
 		<PackageReference Update="@(PackageReference)" Pack="false" PrivateAssets="All" ExcludeAssets="runtime" CopyLocal="false" Publish="false" />
+		<PackageReference Update="ILRepack.Lib.MSBuild.Task" Version="2.0.34.2">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Update="Microsoft.Build.Framework" Version="17.12.6">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Update="Microsoft.Build.Utilities.Core" Version="17.12.6">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Update="System.Security.AccessControl" Version="6.0.1">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Update="System.Security.Permissions" Version="9.0.1">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Update="System.Text.Encoding.CodePages" Version="9.0.1">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 
 		<!--<PackageReference Include="LibGit2Sharp" Version="0.26.2" GeneratePathProperty="true" PrivateAssets="none" />-->
 	</ItemGroup>
@@ -63,7 +88,7 @@
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<ItemGroup>
 			<_MergeItems Include="$(TargetDir)$(TargetName).dll" />
-			<_MergeItems Include="$(PkgDotNetZip)\lib\netstandard2.0\DotNetZip.dll" />
+			<_MergeItems Include="$(PkgSharpZipLib)\lib\netstandard2.0\ICSharpCode.SharpZipLib.dll" />
 			<_MergeItems Include="$(PkgSystem_Security_AccessControl)\lib\netstandard2.0\System.Security.AccessControl.dll" />
 			<_MergeItems Include="$(PkgSystem_Security_Permissions)\lib\netstandard2.0\System.Security.Permissions.dll" />
 			<_MergeItems Include="$(PkgSystem_Text_Encoding_CodePages)\lib\netstandard2.0\System.Text.Encoding.CodePages.dll" />

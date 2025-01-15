@@ -2,8 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Ionic.Zip;
-using Ionic.Zlib;
+using ICSharpCode.SharpZipLib.Zip;
 using System.Diagnostics;
 using Microsoft.Build.Utilities;
 
@@ -35,10 +34,11 @@ namespace BuildTaskVersionControl
             {
                 if (string.IsNullOrEmpty(this.WorkingDirectory))
                     this.WorkingDirectory = ".";
-                string workingDirectory = new DirectoryInfo(this.WorkingDirectory).FullName.TrimEnd(Path.DirectorySeparatorChar);
+                string workingDirectory = new DirectoryInfo(this.WorkingDirectory).FullName.TrimEnd('/', '\\');
 
-                using var zip = new ZipFile();
-                zip.CompressionLevel = CompressionLevel.BestCompression;
+                using var zip = ZipFile.Create(this.ZipFileName);
+                zip.BeginUpdate();
+                //zip.CompressionLevel = CompressionLevel.BestCompression;
                 foreach (var file in this.Files)
                 {
                     string path = file.ItemSpec;
@@ -50,32 +50,34 @@ namespace BuildTaskVersionControl
                     else if (File.Exists(path))
                         addFile(path);
                     else
-                        LogMsg($"error: file not found: {path}");
+                        this.Log.LogError($"error: file not found: {path}");
 
                     void addFile(string path)
                     {
-                        if (dirInZip.Length > 0)
+                        if (dirInZip.Length <= 0)
                         {
-                            zip.UpdateFile(path, dirInZip);
-                            return;
+                            var fi = new FileInfo(path);
+                            string fi_fullname = fi.FullName;
+                            if (fi_fullname.StartsWith(workingDirectory, StringComparison.OrdinalIgnoreCase))
+                                dirInZip = fi_fullname.Substring(workingDirectory.Length).Trim('/', '\\');
+                            else
+                                dirInZip = Path.Combine(".", fi.Name);
                         }
 
-                        string fdir = new FileInfo(path).DirectoryName;
-                        if (fdir.StartsWith(workingDirectory, StringComparison.OrdinalIgnoreCase))                        
-                            zip.UpdateFile(path, fdir.Substring(workingDirectory.Length).Trim(Path.DirectorySeparatorChar));                        
-                        else
-                            zip.UpdateFile(path, ".");
+                        zip.Add(path, dirInZip);
+                        LogMsg($"added '{path}' @ '{dirInZip}'", MessageImportance.Low);
+                        return;
                     }
                 }
 
-                zip.Save(this.ZipFileName);
+                zip.CommitUpdate();
+                zip.Close();
                 LogMsg($"Saved zip to '{this.ZipFileName}'");
 
                 return true;
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
-                LogMsg($"error: {e.Message}");
+                this.Log.LogError($"exception: {e.Message}");
                 return false;
             }
         }
