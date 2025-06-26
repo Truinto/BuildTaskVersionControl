@@ -19,7 +19,7 @@ namespace BuildTaskVersionControl
     public class GitRemoteTask : Microsoft.Build.Utilities.Task
     {
         /// <summary>Url of remote repository. May or may not contain '.git' extension.</summary>
-        [Required] public string Url { get; set; }
+        [Required] public string? Url { get; set; }
 
         /// <summary>Branch or branch path. Will try to find HEAD, if empty string. Examples: "master", "refs/heads/master"</summary>
         public string RepoPath { get; set; } = "refs/heads/master";
@@ -49,7 +49,7 @@ namespace BuildTaskVersionControl
         public bool Silent { get; set; } = false;
 
         /// <summary>Latest commit id (usually hash).</summary>
-        [Output] public string Id { get; set; }
+        [Output] public string? Id { get; set; }
 
         /// <summary>True if Id has changed.</summary>
         [Output] public bool NeedsUpdate { get; set; }
@@ -68,7 +68,7 @@ namespace BuildTaskVersionControl
                 this.Force |= this.DownloadOnChange.Any(a => !File.Exists(a.ItemSpec));
 
                 // check if update is necessary
-                string[] cache = ReadCache(this.CachePath.ItemSpec);
+                string?[] cache = ReadCache(this.CachePath.ItemSpec);
                 if (!this.Force
                     && TimeSpan.TryParse(this.Interval, out TimeSpan interval)
                     && DateTime.TryParse(cache[0], null, DateTimeStyles.RoundtripKind, out DateTime lastTime))
@@ -270,7 +270,7 @@ namespace BuildTaskVersionControl
         /// <param name="output">Console text output.</param>
         /// <param name="onData">Data receive action.</param>
         /// <returns>Process exit code</returns>
-        public static int RunCommand(string command, string args, out string output, Action<string> onData = null)
+        public static int RunCommand(string command, string args, out string output, Action<string>? onData = null)
         {
             var sb = new StringBuilder();
             if (onData == null)
@@ -293,7 +293,7 @@ namespace BuildTaskVersionControl
         /// <param name="onData">Data receive action. Prints to console, if empty.</param>
         /// <param name="startNow">Whenever to start the process immediately.</param>
         /// <returns>Process thread</returns>
-        public static Process RunCommandAsync(string command, string args = "", Action<string> onData = null, bool startNow = true)
+        public static Process RunCommandAsync(string command, string args = "", Action<string>? onData = null, bool startNow = true)
         {
             onData ??= Console.WriteLine;
 

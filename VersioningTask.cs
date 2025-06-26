@@ -14,7 +14,7 @@ namespace BuildTaskVersionControl
     public class VersioningTask : Microsoft.Build.Utilities.Task
     {
         /// <summary>Legacy value. Value is added to InputFiles.</summary>
-        public ITaskItem InputFile { get; set; } = null;
+        public ITaskItem? InputFile { get; set; } = null;
 
         /// <summary>Path to files to extract version string. Only the greatest value is used. Use RegexInput to customize logic.</summary>
         public ITaskItem[] InputFiles { get; set; } = Array.Empty<ITaskItem>();
@@ -47,13 +47,13 @@ namespace BuildTaskVersionControl
         public string RegexReplace { get; set; } = @"{version}{suffix}";
 
         /// <summary>Extracted version string with suffix.</summary>
-        [Output] public string VersionFull { get; private set; }
+        [Output] public string? VersionFull { get; private set; }
 
         /// <summary>Extracted version string without suffix.</summary>
-        [Output] public string Version { get; private set; }
+        [Output] public string? Version { get; private set; }
 
         /// <summary>Extracted version string without revision.</summary>
-        [Output] public string VersionShort { get; private set; }
+        [Output] public string? VersionShort { get; private set; }
 
         /// <summary>Extracted major version.</summary>
         [Output] public int Major { get; private set; }
@@ -68,7 +68,7 @@ namespace BuildTaskVersionControl
         [Output] public int Revision { get; private set; }
 
         /// <summary>Extracted version suffix.</summary>
-        [Output] public string Suffix { get; private set; }
+        [Output] public string? Suffix { get; private set; }
 
         /// <summary></summary>
         public enum Operation
@@ -83,12 +83,12 @@ namespace BuildTaskVersionControl
             Always,
         }
 
-        private List<ITaskItem> inputs;
-        private List<ITaskItem> outputs;
-        private Regex rxIn;
-        private Regex rxOut;
-        private Version version;
-        private string suffix;
+        private List<ITaskItem> inputs = null!;
+        private List<ITaskItem> outputs = null!;
+        private Regex rxIn = null!;
+        private Regex rxOut = null!;
+        private Version version = null!;
+        private string suffix = null!;
 
         /// <summary>
         /// Run task.
@@ -101,8 +101,8 @@ namespace BuildTaskVersionControl
 
                 inputs = new(this.InputFiles);
                 outputs = new(this.UpdateFiles);
-                rxIn = new Regex(this.RegexInput, RegexOptions.Compiled | RegexOptions.CultureInvariant);
-                rxOut = new Regex(this.RegexOutput, RegexOptions.Compiled | RegexOptions.CultureInvariant);
+                rxIn = new Regex(this.RegexInput, RegexOptions.CultureInvariant);
+                rxOut = new Regex(this.RegexOutput, RegexOptions.CultureInvariant);
                 version = new();
                 suffix = "";
 
@@ -159,7 +159,7 @@ namespace BuildTaskVersionControl
                         outputs.Add(item);
                     LogMsg($" added assemblyinfo.cs {this.AutoIncrease}", MessageImportance.Low);
                 }
-                else if (File.Exists(this.BuildEngine?.ProjectFileOfTaskNode) && this.BuildEngine.ProjectFileOfTaskNode.EndsWith(".csproj"))
+                else if (File.Exists(this.BuildEngine?.ProjectFileOfTaskNode) && this.BuildEngine!.ProjectFileOfTaskNode.EndsWith(".csproj"))
                 {
                     item = new TaskItem(this.BuildEngine.ProjectFileOfTaskNode);
                     inputs.Add(item);

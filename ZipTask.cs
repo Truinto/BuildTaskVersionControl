@@ -14,13 +14,13 @@ namespace BuildTaskVersionControl
     public class ZipTask : Microsoft.Build.Utilities.Task
     {
         /// <summary>Files to zip. Use metadata 'Path' to overwrite path inside the zip.</summary>
-        [Required] public ITaskItem[] Files { get; set; }
+        [Required] public ITaskItem[]? Files { get; set; }
 
         /// <summary>Path and name of the zip file.</summary>
-        [Required] public string ZipFileName { get; set; }
+        [Required] public string? ZipFileName { get; set; }
 
         /// <summary>Working directory from which the path inside the zip is determined. If path cannot be reached, then file is put in a dot folder. Ignored if metadata 'Path' is set manually.</summary>
-        public string WorkingDirectory { get; set; } = null;
+        public string? WorkingDirectory { get; set; } = null;
 
         /// <summary>Suppress all log output.</summary>
         public bool Silent { get; set; } = false;
@@ -39,7 +39,7 @@ namespace BuildTaskVersionControl
                 using var zip = ZipFile.Create(this.ZipFileName);
                 zip.BeginUpdate();
                 //zip.CompressionLevel = CompressionLevel.BestCompression;
-                foreach (var file in this.Files)
+                foreach (var file in this.Files ?? Enumerable.Empty<ITaskItem>())
                 {
                     string path = file.ItemSpec;
                     string dirInZip = file.GetMetadata("Path");

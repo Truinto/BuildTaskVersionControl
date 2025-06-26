@@ -13,14 +13,14 @@ namespace BuildTaskVersionControl.Tests
     /// <summary>
     /// Based on https://learn.microsoft.com/en-us/visualstudio/msbuild/tutorial-test-custom-task?view=vs-2022
     /// </summary>
-    [TestClass()]
+    [TestClass]
     public class GitTests
     {
-        private List<BuildMessageEventArgs> Messages;
-        private List<BuildErrorEventArgs> Errors;
-        private Mock<IBuildEngine> BuildEngine;
+        private List<BuildMessageEventArgs> Messages = null!;
+        private List<BuildErrorEventArgs> Errors = null!;
+        private Mock<IBuildEngine> BuildEngine = null!;
 
-        [TestInitialize()]
+        [TestInitialize]
         public void Startup()
         {
             Console.WriteLine("Startup");
@@ -31,7 +31,7 @@ namespace BuildTaskVersionControl.Tests
             this.BuildEngine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback<BuildMessageEventArgs>(this.Messages.Add);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ExecuteTest()
         {
             Console.WriteLine("ExecuteTest");

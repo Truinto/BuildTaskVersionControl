@@ -12,14 +12,14 @@ namespace BuildTaskVersionControl.Tests
     /// <summary>
     /// Based on https://learn.microsoft.com/en-us/visualstudio/msbuild/tutorial-test-custom-task?view=vs-2022
     /// </summary>
-    [TestClass()]
+    [TestClass]
     public class ZipTaskTests
     {
-        private List<BuildMessageEventArgs> Messages;
-        private List<BuildErrorEventArgs> Errors;
-        private Mock<IBuildEngine> BuildEngine;
+        private List<BuildMessageEventArgs> Messages = null!;
+        private List<BuildErrorEventArgs> Errors = null!;
+        private Mock<IBuildEngine> BuildEngine = null!;
 
-        [TestInitialize()]
+        [TestInitialize]
         public void Startup()
         {
             Console.WriteLine("Startup");
@@ -39,7 +39,7 @@ namespace BuildTaskVersionControl.Tests
             return new TaskItem(path);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ExecuteTest1()
         {
             Console.WriteLine("ExecuteTest");
@@ -67,7 +67,7 @@ namespace BuildTaskVersionControl.Tests
             Assert.AreEqual(0, this.Errors.Count);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void ExecuteTest2()
         {
             Console.WriteLine("ExecuteTest");
