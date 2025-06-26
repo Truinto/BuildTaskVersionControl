@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project TreatAsLocalProperty="CustomTaskAssembly">
 	<PropertyGroup>
-		<CustomTaskAssembly>$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\$(MSBuildThisFileName).dll</CustomTaskAssembly>
+		<VersioningTask_AutoIncrease Condition="'$(VersioningTask_AutoIncrease)'==''">true</VersioningTask_AutoIncrease>
+		<CustomTaskAssembly>$(MSBuildThisFileDirectory)../tasks/netstandard2.0/$(MSBuildThisFileName).dll</CustomTaskAssembly>
 	</PropertyGroup>
 	<UsingTask TaskName="BuildTaskVersionControl.VersioningTask" AssemblyFile="$(CustomTaskAssembly)" />
 	<UsingTask TaskName="BuildTaskVersionControl.ZipTask" AssemblyFile="$(CustomTaskAssembly)" />
@@ -9,7 +10,7 @@
 	<UsingTask TaskName="BuildTaskVersionControl.SleepTask" AssemblyFile="$(CustomTaskAssembly)" />
 
 	<Target Name="VersioningTask_Auto" BeforeTargets="BeforeBuild" Condition="'$(AutoVersion)'=='true' or '@(VersioningTask_In)'!=''">
-		<VersioningTask InputFiles="@(VersioningTask_In)" UpdateFiles="@(VersioningTask_Out)" AutoIncrease="true" MaxMatch="1" DropRevision="never">
+		<VersioningTask InputFiles="@(VersioningTask_In)" UpdateFiles="@(VersioningTask_Out)" AutoIncrease="$(VersioningTask_AutoIncrease)" MaxMatch="1" DropRevision="never">
 			<Output TaskParameter="VersionFull" PropertyName="Version" />
 		</VersioningTask>
 	</Target>
