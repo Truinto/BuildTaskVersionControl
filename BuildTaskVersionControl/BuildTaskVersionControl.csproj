@@ -33,6 +33,7 @@
 		<PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.43" />
 
 		<!--GeneratePathProperty created properties where dot is replaced with underscore-->
+		<PackageReference Include="SymbolicLinkSupport" Version="1.2.0" GeneratePathProperty="true" />
 		<PackageReference Include="SharpZipLib" Version="1.4.2" GeneratePathProperty="true" />
 		<PackageReference Include="System.Security.AccessControl" Version="6.0.1" GeneratePathProperty="true" />
 		<PackageReference Include="System.Security.Permissions" Version="9.0.8" GeneratePathProperty="true" />
@@ -62,6 +63,7 @@
 		<ItemGroup>
 			<_MergeItems Include="$(TargetDir)$(TargetName).dll" />
 			<_MergeItems Include="$(PkgSharpZipLib)\lib\netstandard2.0\ICSharpCode.SharpZipLib.dll" />
+			<_MergeItems Include="$(PkgSymbolicLinkSupport)\lib\netstandard1.3\SymbolicLinkSupport.dll" />
 			<_MergeItems Include="$(PkgSystem_Security_AccessControl)\lib\netstandard2.0\System.Security.AccessControl.dll" />
 			<_MergeItems Include="$(PkgSystem_Security_Permissions)\lib\netstandard2.0\System.Security.Permissions.dll" />
 			<_MergeItems Include="$(PkgSystem_Text_Encoding_CodePages)\lib\netstandard2.0\System.Text.Encoding.CodePages.dll" />

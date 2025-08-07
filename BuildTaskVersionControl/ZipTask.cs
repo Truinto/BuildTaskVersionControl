@@ -5,6 +5,8 @@ using System.Text;
 using ICSharpCode.SharpZipLib.Zip;
 using System.Diagnostics;
 using Microsoft.Build.Utilities;
+using System.Runtime.InteropServices;
+using SymbolicLinkSupport;
 
 namespace BuildTaskVersionControl
 {
@@ -58,10 +60,11 @@ namespace BuildTaskVersionControl
                     void addFile(string path)
                     {
                         path = path.Replace('\\', '/');
+                        bool isLink = false;
                         string fi_fullname = "";
+                        var fi = new FileInfo(path);
                         if (dirInZip.Length <= 0)
                         {
-                            var fi = new FileInfo(path);
                             fi_fullname = fi.FullName.Replace('\\', '/');
                             if (fi_fullname.StartsWith(workingDirectory, StringComparison.OrdinalIgnoreCase))
                                 dirInZip = fi_fullname.Substring(workingDirectory.Length);
@@ -69,8 +72,17 @@ namespace BuildTaskVersionControl
                                 dirInZip = fi.Name;
                         }
 
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                        {
+                            if (fi.IsSymbolicLink())
+                            {
+                                isLink = true;
+                                path = fi.GetSymbolicLinkTarget().Replace('\\', '/');
+                            }
+                        }
+
                         zip.Add(path, dirInZip);
-                        LogMsg($"added '{path}' or '{fi_fullname}' @ '{dirInZip}'", MessageImportance.Low);
+                        LogMsg($"added {(isLink ? "(is link) " : "")}'{path}' or '{fi_fullname}' @ '{dirInZip}'", MessageImportance.Low);
                         return;
                     }
                 }
