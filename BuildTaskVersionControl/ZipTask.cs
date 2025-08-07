@@ -32,9 +32,12 @@ namespace BuildTaskVersionControl
         {
             try
             {
-                if (string.IsNullOrEmpty(this.WorkingDirectory))
-                    this.WorkingDirectory = ".";
-                string workingDirectory = new DirectoryInfo(this.WorkingDirectory).FullName.TrimEnd('/', '\\');
+                string workingDirectory = Path.GetFullPath(this.WorkingDirectory is null or "" ? "." : this.WorkingDirectory).Replace('\\', '/');
+                if (workingDirectory.Length == 0)
+                    throw new Exception($"Unable to resolve WorkingDirectory");
+                if (workingDirectory[workingDirectory.Length - 1] != '/')
+                    workingDirectory += '/';
+                LogMsg($"WorkingDirectory is '{workingDirectory}'", MessageImportance.Low);
 
                 using var zip = ZipFile.Create(this.ZipFileName);
                 zip.BeginUpdate();
@@ -54,18 +57,20 @@ namespace BuildTaskVersionControl
 
                     void addFile(string path)
                     {
+                        path = path.Replace('\\', '/');
+                        string fi_fullname = "";
                         if (dirInZip.Length <= 0)
                         {
                             var fi = new FileInfo(path);
-                            string fi_fullname = fi.FullName;
+                            fi_fullname = fi.FullName.Replace('\\', '/');
                             if (fi_fullname.StartsWith(workingDirectory, StringComparison.OrdinalIgnoreCase))
-                                dirInZip = fi_fullname.Substring(workingDirectory.Length).Trim('/', '\\');
+                                dirInZip = fi_fullname.Substring(workingDirectory.Length);
                             else
-                                dirInZip = Path.Combine(".", fi.Name);
+                                dirInZip = fi.Name;
                         }
 
                         zip.Add(path, dirInZip);
-                        LogMsg($"added '{path}' @ '{dirInZip}'", MessageImportance.Low);
+                        LogMsg($"added '{path}' or '{fi_fullname}' @ '{dirInZip}'", MessageImportance.Low);
                         return;
                     }
                 }
@@ -77,7 +82,7 @@ namespace BuildTaskVersionControl
                 return true;
             } catch (Exception e)
             {
-                this.Log.LogError($"exception: {e.Message}");
+                this.Log.LogError($"zip failed with exception: {e}");
                 return false;
             }
         }

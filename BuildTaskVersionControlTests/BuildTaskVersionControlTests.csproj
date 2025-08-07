@@ -1,0 +1,21 @@
+<Project Sdk="MSTest.Sdk/3.6.4">
+
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UseVSTest>true</UseVSTest>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Build.Framework" Version="*" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="*" />
+		<PackageReference Include="Moq" Version="*" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BuildTaskVersionControl\BuildTaskVersionControl.csproj" />
+	</ItemGroup>
+
+</Project>

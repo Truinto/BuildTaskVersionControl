@@ -6,15 +6,15 @@ using System.Text;
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using Moq;
-using System.Diagnostics;
+using System.Reflection;
 
-namespace BuildTaskVersionControl.Tests
+namespace BuildTaskVersionControlTests
 {
     /// <summary>
     /// Based on https://learn.microsoft.com/en-us/visualstudio/msbuild/tutorial-test-custom-task?view=vs-2022
     /// </summary>
     [TestClass]
-    public class SleepTaskTests
+    public class GitTests
     {
         private List<BuildMessageEventArgs> Messages = null!;
         private List<BuildErrorEventArgs> Errors = null!;
@@ -27,51 +27,38 @@ namespace BuildTaskVersionControl.Tests
             this.Messages = new();
             this.Errors = new();
             this.BuildEngine = new Mock<IBuildEngine>();
-            this.BuildEngine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback<BuildErrorEventArgs>(this.Errors.Add);
+            this.BuildEngine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback<BuildErrorEventArgs>(e => this.Errors.Add(e));
             this.BuildEngine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback<BuildMessageEventArgs>(this.Messages.Add);
         }
 
         [TestMethod]
-        public void ExecuteTest1()
+        public void ExecuteTest()
         {
             Console.WriteLine("ExecuteTest");
 
-            var item = new Mock<ITaskItem>();
-            item.Setup(x => x.GetMetadata("Identity")).Returns($".\\Resources\\complete-prop.setting");
+            var item1 = new TaskItem("Downloads/README.md");
+            item1.SetMetadata("Url", "https://github.com/Truinto/BuildTaskVersionControl/blob/master/README.md");
+            var item2 = new TaskItem("Downloads/BuildTaskVersionControlTests.csproj");
+            item2.SetMetadata("Url", "Test/#(Filename)#(Extension)");
 
-            var vt = new SleepTask()
+            var vt = new GitRemoteTask()
             {
                 BuildEngine = this.BuildEngine.Object,
-                Milliseconds = 1000
+                Url = "https://github.com/Truinto/BuildTaskVersionControl.git/",
+                Interval = "0.00:00",
+                DownloadOnChange = [item1, item2],
+                Force = true
             };
-            var sw = new Stopwatch();
-            sw.Start();
             var success = vt.Execute();
-            sw.Stop();
+            Console.WriteLine($"Done {vt.NeedsUpdate}");
+
             foreach (var e in this.Messages)
                 Console.WriteLine($"{e.Message}");
-            this.Messages.Clear();
-            Console.WriteLine($"Elapsed time is {sw.ElapsedMilliseconds}ms");
-
-            vt = new SleepTask()
-            {
-                BuildEngine = this.BuildEngine.Object,
-                Milliseconds = 300
-            };
-            sw.Restart();
-            var success2 = vt.Execute();
-            sw.Stop();
-            foreach (var e in this.Messages)
-                Console.WriteLine($"{e.Message}");
-            this.Messages.Clear();
-            Console.WriteLine($"Elapsed time is {sw.ElapsedMilliseconds}ms");
-
-            Console.WriteLine($"Done {success && success2}:{this.Errors.Count}");
+            Console.WriteLine($"Done {success}:{this.Errors.Count} NeedsUpdate={vt.NeedsUpdate}");
             foreach (var e in this.Errors)
                 Console.WriteLine($"{e.File}:{e.LineNumber} {e.Message}");
 
             Assert.IsTrue(success);
-            Assert.IsTrue(success2);
             Assert.AreEqual(0, this.Errors.Count);
         }
     }

@@ -7,7 +7,7 @@ using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 using Moq;
 
-namespace BuildTaskVersionControl.Tests
+namespace BuildTaskVersionControlTests
 {
     /// <summary>
     /// Based on https://learn.microsoft.com/en-us/visualstudio/msbuild/tutorial-test-custom-task?view=vs-2022
@@ -33,7 +33,7 @@ namespace BuildTaskVersionControl.Tests
         private TaskItem Ensure(string path)
         {
             var info = new FileInfo(path);
-            info.Directory.Create();
+            info.Directory?.Create();
             if (info.Name.Length > 0 && !File.Exists(path))
                 File.WriteAllText(path, path);
             return new TaskItem(path);
@@ -43,6 +43,9 @@ namespace BuildTaskVersionControl.Tests
         public void ExecuteTest1()
         {
             Console.WriteLine("ExecuteTest");
+            var cd = Environment.CurrentDirectory;
+            Directory.CreateDirectory("@Test");
+            Environment.CurrentDirectory = "@Test";
 
             Ensure(@"sub2\input2.txt");
 
@@ -50,10 +53,12 @@ namespace BuildTaskVersionControl.Tests
             {
                 BuildEngine = this.BuildEngine.Object,
                 ZipFileName = "zip.zip",
+                WorkingDirectory = null,
                 Files = [
                     Ensure(@"input0.txt"),
                     Ensure(@"sub1\input1.txt"),
                     Ensure(@"sub2\"),
+                    Ensure(@"..\@Testb\input0b.txt"),
                 ],
             };
             var success = vt.Execute();
@@ -65,11 +70,18 @@ namespace BuildTaskVersionControl.Tests
 
             Assert.IsTrue(success);
             Assert.AreEqual(0, this.Errors.Count);
+            Environment.CurrentDirectory = cd;
         }
 
         [TestMethod]
         public void ExecuteTest2()
         {
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                Console.WriteLine("Test skipped, because not on Windows");
+                return;
+            }
+
             Console.WriteLine("ExecuteTest");
 
             Ensure(@"C:\Temp\folder\sub2\input2.txt");

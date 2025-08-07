@@ -68,7 +68,7 @@ namespace BuildTaskVersionControl
                 this.Force |= this.DownloadOnChange.Any(a => !File.Exists(a.ItemSpec));
 
                 // check if update is necessary
-                string?[] cache = ReadCache(this.CachePath.ItemSpec);
+                string[] cache = ReadCache(this.CachePath.ItemSpec);
                 if (!this.Force
                     && TimeSpan.TryParse(this.Interval, out TimeSpan interval)
                     && DateTime.TryParse(cache[0], null, DateTimeStyles.RoundtripKind, out DateTime lastTime))
@@ -103,14 +103,13 @@ namespace BuildTaskVersionControl
                 }
 
                 cache[0] = DateTime.UtcNow.ToString("o");
-                cache[1] = this.Id;
-                new FileInfo(this.CachePath.ItemSpec).Directory.Create();
+                cache[1] = this.Id ?? "";
+                new FileInfo(this.CachePath.ItemSpec).Directory!.Create();
                 File.WriteAllLines(this.CachePath.ItemSpec, cache);
 
                 LogMsg("Remote update done");
                 return true;
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 LogMsg($"error: {e.Message}");
                 return this.SurpressErrors;
@@ -119,7 +118,7 @@ namespace BuildTaskVersionControl
 
         private string[] ReadCache(string path)
         {
-            string[] cache = new string[2] { "", "" };
+            string[] cache = ["", ""];
             if (!File.Exists(path))
                 return cache;
 
@@ -171,7 +170,7 @@ namespace BuildTaskVersionControl
             //var rx_url = new Regex(@"^(?'prot'https?:\/\/)(?'page'.*?)\/(?'owner'.*?)\/(?'repo'.*?)\/(?'blob'.*?)\/(?'branch'.*?)\/(?'path'.*)$");
 
             Match match;
-            if (!(match = rx_repo.Match(this.Url)).Success)
+            if (!(match = rx_repo.Match(this.Url ?? "")).Success)
             {
                 LogMsg($"error: unable to parse url '{this.Url}'");
                 return false;
@@ -233,7 +232,7 @@ namespace BuildTaskVersionControl
                     return HttpStatusCode.BadRequest;
 
                 LogMsg($"Downloading file: {uri}", MessageImportance.Normal);
-                new FileInfo(filePath).Directory.Create();
+                new FileInfo(filePath).Directory?.Create();
                 //var client = new WebClient();
                 //client.DownloadFile("", "");
                 //client.UploadFile("", null, "");
@@ -245,8 +244,7 @@ namespace BuildTaskVersionControl
                 sw.Close();
                 LogMsg($"{(int)result.StatusCode}: {result.ReasonPhrase}", MessageImportance.Low);
                 return result.StatusCode;
-            }
-            catch (Exception e)
+            } catch (Exception e)
             {
                 LogMsg($"Exception occured with path='{filePath}' url='{url}' {e.Message}");
                 return HttpStatusCode.BadRequest;
@@ -309,8 +307,8 @@ namespace BuildTaskVersionControl
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardError = true;
             p.EnableRaisingEvents = true;
-            p.OutputDataReceived += (sender, args) => onData(args.Data);
-            p.ErrorDataReceived += (sender, args) => onData(args.Data);
+            p.OutputDataReceived += (sender, args) => onData(args.Data ?? "");
+            p.ErrorDataReceived += (sender, args) => onData(args.Data ?? "");
             if (startNow)
             {
                 p.Start();
