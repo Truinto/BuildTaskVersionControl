@@ -39,7 +39,7 @@ namespace BuildTaskVersionControlTests
             var item1 = new TaskItem("Downloads/README.md");
             item1.SetMetadata("Url", "https://github.com/Truinto/BuildTaskVersionControl/blob/master/README.md");
             var item2 = new TaskItem("Downloads/BuildTaskVersionControlTests.csproj");
-            item2.SetMetadata("Url", "Test/#(Filename)#(Extension)");
+            item2.SetMetadata("Url", "BuildTaskVersionControlTests/#(Filename)#(Extension)");
 
             var vt = new GitRemoteTask()
             {

@@ -43,9 +43,6 @@ namespace BuildTaskVersionControlTests
         public void ExecuteTest1()
         {
             Console.WriteLine("ExecuteTest");
-            var cd = Environment.CurrentDirectory;
-            Directory.CreateDirectory("@Test");
-            Environment.CurrentDirectory = "@Test";
 
             Ensure(@"sub2\input2.txt");
 
@@ -70,7 +67,6 @@ namespace BuildTaskVersionControlTests
 
             Assert.IsTrue(success);
             Assert.AreEqual(0, this.Errors.Count);
-            Environment.CurrentDirectory = cd;
         }
 
         [TestMethod]

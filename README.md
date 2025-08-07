@@ -109,7 +109,7 @@ Task to read remote repository commit history and download files on change. Requ
   <ItemGroup>
     <_Download Include="Downloads\README.md" Url="#(Filename)#(Extension)" />
   </ItemGroup>
-  <GitRemoteTask Url="https://github.com/Truinto/BuildTaskVersionControl.git" RepoPath="main" DownloadOnChange="@(_Download)" />
+  <GitRemoteTask Url="https://github.com/Truinto/BuildTaskVersionControl.git" RepoPath="master" DownloadOnChange="@(_Download)" />
 </Target>
 ```
 

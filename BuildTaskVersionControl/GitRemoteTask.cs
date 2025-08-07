@@ -34,10 +34,10 @@ namespace BuildTaskVersionControl
         /// The url can include #(Filename)#(Extension) to copy the filename and extension from the file path.<br/>
         /// If a relative name is given, then the url is taken from the repository Url (Github).<br/>
         /// </summary>
-        public ITaskItem[] DownloadOnChange { get; set; } = Array.Empty<ITaskItem>(); // "https://github.com/Truinto/DarkCodex/raw/master/CodexLib/CodexLib.dll"; // "CodexLib/CodexLib.dll"
+        public ITaskItem[] DownloadOnChange { get; set; } = []; // "https://github.com/Truinto/DarkCodex/raw/master/CodexLib/CodexLib.dll"; // "CodexLib/CodexLib.dll"
 
         /// <summary>File last update date is saved to.</summary>
-        public ITaskItem CachePath { get; set; } = new TaskItem("obj/remote.cache");
+        public ITaskItem? CachePath { get; set; }
 
         /// <summary>Whenever to throw an error, if remote connection fails.</summary>
         public bool SurpressErrors { get; set; } = false;
@@ -64,6 +64,15 @@ namespace BuildTaskVersionControl
 
             try
             {
+                if (this.CachePath == null || this.CachePath.ItemSpec == "")
+                {
+                    var match = Regex.Match(this.Url, @"[^\/]+\/\/[^\/]+\/(?'user'[^\/]+)\/(?'repo'[^\/\.]+)");
+                    if (match.Success)
+                        this.CachePath = new TaskItem($"obj/{match.Groups["user"].Value}_{match.Groups["repo"].Value}.cache");
+                    else
+                        this.CachePath = new TaskItem($"obj/remote.cache");
+                }
+
                 // check if files are missing
                 this.Force |= this.DownloadOnChange.Any(a => !File.Exists(a.ItemSpec));
 
@@ -213,7 +222,7 @@ namespace BuildTaskVersionControl
                 }
 
                 var response = DownloadFile(url, filepath);
-                if ((int)response < 200 || (int)response > 299)
+                if ((int)response is < 200 or > 299)
                 {
                     LogMsg($"error: could not download file '{url}' to '{filepath}'");
                     success = false;

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<Version>1.3.0</Version>
+		<Version>1.3.1</Version>
 
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
@@ -9,6 +9,8 @@
 		<Nullable>enable</Nullable>
 		<DebugType>none</DebugType>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+		<ILRepackTargetsFile>$(SolutionDir)ILRepack.targets</ILRepackTargetsFile>
 
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<!-- Change the default location where NuGet will put the build output -->
@@ -64,9 +66,9 @@
 			<_MergeItems Include="$(TargetDir)$(TargetName).dll" />
 			<_MergeItems Include="$(PkgSharpZipLib)\lib\netstandard2.0\ICSharpCode.SharpZipLib.dll" />
 			<_MergeItems Include="$(PkgSymbolicLinkSupport)\lib\netstandard1.3\SymbolicLinkSupport.dll" />
-			<_MergeItems Include="$(PkgSystem_Security_AccessControl)\lib\netstandard2.0\System.Security.AccessControl.dll" />
+			<!--<_MergeItems Include="$(PkgSystem_Security_AccessControl)\lib\netstandard2.0\System.Security.AccessControl.dll" />
 			<_MergeItems Include="$(PkgSystem_Security_Permissions)\lib\netstandard2.0\System.Security.Permissions.dll" />
-			<_MergeItems Include="$(PkgSystem_Text_Encoding_CodePages)\lib\netstandard2.0\System.Text.Encoding.CodePages.dll" />
+			<_MergeItems Include="$(PkgSystem_Text_Encoding_CodePages)\lib\netstandard2.0\System.Text.Encoding.CodePages.dll" />-->
 		</ItemGroup>
 		<ILRepack XmlDocumentation="false" Union="true" LibraryPath="" InputAssemblies="@(_MergeItems)" OutputFile="$(TargetDir)$(TargetName).dll" />
 	</Target>

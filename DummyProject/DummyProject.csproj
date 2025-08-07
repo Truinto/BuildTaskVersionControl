@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Version>1.0.0</Version>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<CustomTaskAssembly>$(MSBuildThisFileDirectory)/../BuildTaskVersionControl/bin/Debug/netstandard2.0/BuildTaskVersionControl.dll</CustomTaskAssembly>
+	</PropertyGroup>
+
+	<UsingTask TaskName="BuildTaskVersionControl.VersioningTask" AssemblyFile="$(CustomTaskAssembly)" />
+	<UsingTask TaskName="BuildTaskVersionControl.ZipTask" AssemblyFile="$(CustomTaskAssembly)" />
+	<UsingTask TaskName="BuildTaskVersionControl.GitRemoteTask" AssemblyFile="$(CustomTaskAssembly)" />
+	<UsingTask TaskName="BuildTaskVersionControl.SleepTask" AssemblyFile="$(CustomTaskAssembly)" />
+
+	<Target Name="Versioning" BeforeTargets="BeforeBuild">
+		<Message Text="Start version control" Importance="High" />
+		<ItemGroup>
+			<_In Include="$(MSBuildProjectName).csproj" />
+			<_Out Include="$(MSBuildProjectName).csproj" />
+		</ItemGroup>
+		<VersioningTask InputFiles="@(_In)" UpdateFiles="@(_Out)" AutoIncrease="true">
+			<Output TaskParameter="VersionFull" PropertyName="Version" />
+			<Output TaskParameter="Version" ItemName="OutputVersionText" />
+		</VersioningTask>
+		<Message Text="Finish version control @(OutputVersionText)" Importance="High" />
+	</Target>
+
+	<Target Name="GithubUpdate" BeforeTargets="BeforeBuild;Clean">
+		<ItemGroup>
+			<_Download Include="$(MSBuildThisFileDirectory)/bin/Downloads/README.md" Url="#(Filename)#(Extension)" />
+		</ItemGroup>
+		<GitRemoteTask Url="https://github.com/Truinto/BuildTaskVersionControl.git" RepoPath="master" DownloadOnChange="@(_Download)" />
+	</Target>
+
+	<Target Name="Zipping" AfterTargets="PostBuildEvent">
+		<ItemGroup>
+			<_Zip Include="$(TargetDir)/*" />
+		</ItemGroup>
+		<ZipTask ZipFileName="$(MSBuildThisFileDirectory)/bin/archive.zip" WorkingDirectory="." Files="@(_Zip)" />
+	</Target>
+</Project>
