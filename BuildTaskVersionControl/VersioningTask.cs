@@ -1,4 +1,4 @@
-﻿using Microsoft.Build.Framework;
+using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using System;
 using System.Diagnostics;
@@ -17,10 +17,10 @@ namespace BuildTaskVersionControl
         public ITaskItem? InputFile { get; set; } = null;
 
         /// <summary>Path to files to extract version string. Only the greatest value is used. Use RegexInput to customize logic.</summary>
-        public ITaskItem[] InputFiles { get; set; } = Array.Empty<ITaskItem>();
+        public ITaskItem[] InputFiles { get; set; } = [];
 
         /// <summary>Path to files to inject with new version string. Use RegexOutput to customize logic.</summary>
-        public ITaskItem[] UpdateFiles { get; set; } = Array.Empty<ITaskItem>();
+        public ITaskItem[] UpdateFiles { get; set; } = [];
 
         /// <summary>Maximum number of lines to match and replace. Matches at least once.</summary>
         public int MaxMatch { get; set; } = 1;
@@ -83,12 +83,12 @@ namespace BuildTaskVersionControl
             Always,
         }
 
-        private List<ITaskItem> inputs = null!;
-        private List<ITaskItem> outputs = null!;
-        private Regex rxIn = null!;
-        private Regex rxOut = null!;
-        private Version version = null!;
-        private string suffix = null!;
+        private List<ITaskItem> _Inputs = null!;
+        private List<ITaskItem> _Outputs = null!;
+        private Regex _Rx_In = null!;
+        private Regex _Rx_Out = null!;
+        private Version _Version = null!;
+        private string _Suffix = null!;
 
         /// <summary>
         /// Run task.
@@ -99,12 +99,12 @@ namespace BuildTaskVersionControl
             {
                 LogMsg($"Start VersioningTask auto={this.AutoIncrease} max={this.MaxMatch} touch={this.TouchFiles}", MessageImportance.Normal);
 
-                inputs = new(this.InputFiles);
-                outputs = new(this.UpdateFiles);
-                rxIn = new Regex(this.RegexInput, RegexOptions.CultureInvariant);
-                rxOut = new Regex(this.RegexOutput, RegexOptions.CultureInvariant);
-                version = new();
-                suffix = "";
+                _Inputs = new(this.InputFiles);
+                _Outputs = new(this.UpdateFiles);
+                _Rx_In = new Regex(this.RegexInput, RegexOptions.CultureInvariant);
+                _Rx_Out = new Regex(this.RegexOutput, RegexOptions.CultureInvariant);
+                _Version = new();
+                _Suffix = "";
 
                 // try autofill, if no input given
                 Autofill();
@@ -112,7 +112,7 @@ namespace BuildTaskVersionControl
                 // search for greatest input version
                 ParseInput();
 
-                if (version == new Version())
+                if (_Version == new Version())
                 {
                     LogMsg("error: no input version");
                     return false;
@@ -138,15 +138,15 @@ namespace BuildTaskVersionControl
         private void Autofill()
         {
             if (this.InputFile != null)
-                inputs.Insert(0, this.InputFile);
-            else if (inputs.Count <= 0)
+                _Inputs.Insert(0, this.InputFile);
+            else if (_Inputs.Count <= 0)
             {
                 LogMsg($"No input files, searching...", MessageImportance.Low);
                 TaskItem item;
                 if (File.Exists("changelog.md"))
                 {
                     item = new TaskItem("changelog.md");
-                    inputs.Add(item);
+                    _Inputs.Add(item);
                     LogMsg($" added changelog.md", MessageImportance.Low);
                 }
 
@@ -154,17 +154,17 @@ namespace BuildTaskVersionControl
                 {
                     item = new TaskItem(Path.Combine("Properties", "AssemblyInfo.cs"));
                     item.SetMetadata("Max", "2");
-                    inputs.Add(item);
+                    _Inputs.Add(item);
                     if (this.AutoIncrease)
-                        outputs.Add(item);
+                        _Outputs.Add(item);
                     LogMsg($" added assemblyinfo.cs {this.AutoIncrease}", MessageImportance.Low);
                 }
                 else if (File.Exists(this.BuildEngine?.ProjectFileOfTaskNode) && this.BuildEngine!.ProjectFileOfTaskNode.EndsWith(".csproj"))
                 {
                     item = new TaskItem(this.BuildEngine.ProjectFileOfTaskNode);
-                    inputs.Add(item);
+                    _Inputs.Add(item);
                     if (this.AutoIncrease)
-                        outputs.Add(item);
+                        _Outputs.Add(item);
                     LogMsg($" added {this.BuildEngine.ProjectFileOfTaskNode} {this.AutoIncrease}", MessageImportance.Low);
                 }
                 else
@@ -172,9 +172,9 @@ namespace BuildTaskVersionControl
                     foreach (string path in Directory.EnumerateFiles(".", "*.csproj"))
                     {
                         item = new TaskItem(path);
-                        inputs.Add(item);
+                        _Inputs.Add(item);
                         if (this.AutoIncrease)
-                            outputs.Add(item);
+                            _Outputs.Add(item);
                         LogMsg($" added {path} {this.AutoIncrease}", MessageImportance.Low);
                     }
                 }
@@ -185,7 +185,7 @@ namespace BuildTaskVersionControl
         {
             Capture c;
 
-            foreach (var item in inputs)
+            foreach (var item in _Inputs)
             {
                 string path = item.ItemSpec;
                 if (!File.Exists(path))
@@ -204,7 +204,7 @@ namespace BuildTaskVersionControl
 
                 // meta override regex
                 string text = item.GetMetadata("Regex");
-                Regex rx = text.Length > 0 ? new Regex(text) : rxIn;
+                Regex rx = text.Length > 0 ? new Regex(text) : _Rx_In;
 
                 foreach (string line in File.ReadLines(path))
                 {
@@ -220,11 +220,11 @@ namespace BuildTaskVersionControl
                     LogMsg($"Parsed entry '{match.Value}' in '{path}'", MessageImportance.Normal);
 
                     var version2 = new Version(c.Value);
-                    if (version2 > version)
+                    if (version2 > _Version)
                     {
-                        version = version2;
+                        _Version = version2;
                         if ((c = match.Groups["suffix"]).Length > 0)
-                            suffix = c.Value;
+                            _Suffix = c.Value;
                     }
 
                     if (--max <= 0)
@@ -235,17 +235,17 @@ namespace BuildTaskVersionControl
 
         private void SetOutValues()
         {
-            int revision = this.AutoIncrease ? version.Revision + 1 : Math.Max(0, version.Revision);
-            this.VersionShort = $"{version.Major}.{version.Minor}.{Math.Max(0, version.Build)}";
+            int revision = this.AutoIncrease ? _Version.Revision + 1 : Math.Max(0, _Version.Revision);
+            this.VersionShort = $"{_Version.Major}.{_Version.Minor}.{Math.Max(0, _Version.Build)}";
             this.Version = $"{this.VersionShort}.{revision}";
-            this.Suffix = suffix;
+            this.Suffix = _Suffix;
             this.VersionFull = $"{this.Version}{this.Suffix}";
             LogMsg($"Read version as {this.VersionFull}");
 
-            this.Major = version.Major;
-            this.Minor = version.Minor;
-            this.Build = version.Build;
-            this.Revision = version.Revision;
+            this.Major = _Version.Major;
+            this.Minor = _Version.Minor;
+            this.Build = _Version.Build;
+            this.Revision = _Version.Revision;
 
             this.RegexReplace = this.RegexReplace.Replace("{suffix}", this.Suffix);
         }
@@ -254,7 +254,7 @@ namespace BuildTaskVersionControl
         {
             Capture c;
 
-            foreach (var item in outputs)
+            foreach (var item in _Outputs)
             {
                 string path = item.ItemSpec;
                 if (!File.Exists(path))
@@ -273,7 +273,7 @@ namespace BuildTaskVersionControl
 
                 // meta override regex
                 string text = item.GetMetadata("Regex");
-                Regex rx = text.Length > 0 ? new Regex(text) : rxOut;
+                Regex rx = text.Length > 0 ? new Regex(text) : _Rx_Out;
 
                 // meta override DropRevision
                 text = item.GetMetadata("DropRevision");
@@ -308,7 +308,7 @@ namespace BuildTaskVersionControl
                         if ((c = match.Groups["version"]).Length <= 0)
                             c = match.Groups[1];
                         int j = c.Value.Count(f => f == '.');
-                        if (j > 0 && j < 3)
+                        if (j is > 0 and < 3)
                             replacement = replacementOrg.Replace("{version}", this.VersionShort);
                         else
                             replacement = replacementOrg.Replace("{version}", this.Version);

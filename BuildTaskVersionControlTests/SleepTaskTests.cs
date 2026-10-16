@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BuildTaskVersionControl;
 using System;
 using System.Collections.Generic;
@@ -16,19 +16,19 @@ namespace BuildTaskVersionControlTests
     [TestClass]
     public class SleepTaskTests
     {
-        private List<BuildMessageEventArgs> Messages = null!;
-        private List<BuildErrorEventArgs> Errors = null!;
-        private Mock<IBuildEngine> BuildEngine = null!;
+        private List<BuildMessageEventArgs> _Messages = null!;
+        private List<BuildErrorEventArgs> _Errors = null!;
+        private Mock<IBuildEngine> _Build_Engine = null!;
 
         [TestInitialize]
         public void Startup()
         {
             Console.WriteLine("Startup");
-            this.Messages = new();
-            this.Errors = new();
-            this.BuildEngine = new Mock<IBuildEngine>();
-            this.BuildEngine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback<BuildErrorEventArgs>(this.Errors.Add);
-            this.BuildEngine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback<BuildMessageEventArgs>(this.Messages.Add);
+            this._Messages = new();
+            this._Errors = new();
+            this._Build_Engine = new Mock<IBuildEngine>();
+            this._Build_Engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback<BuildErrorEventArgs>(this._Errors.Add);
+            this._Build_Engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback<BuildMessageEventArgs>(this._Messages.Add);
         }
 
         [TestMethod]
@@ -41,38 +41,38 @@ namespace BuildTaskVersionControlTests
 
             var vt = new SleepTask()
             {
-                BuildEngine = this.BuildEngine.Object,
+                BuildEngine = this._Build_Engine.Object,
                 Milliseconds = 1000
             };
             var sw = new Stopwatch();
             sw.Start();
             var success = vt.Execute();
             sw.Stop();
-            foreach (var e in this.Messages)
+            foreach (var e in this._Messages)
                 Console.WriteLine($"{e.Message}");
-            this.Messages.Clear();
+            this._Messages.Clear();
             Console.WriteLine($"Elapsed time is {sw.ElapsedMilliseconds}ms");
 
             vt = new SleepTask()
             {
-                BuildEngine = this.BuildEngine.Object,
+                BuildEngine = this._Build_Engine.Object,
                 Milliseconds = 300
             };
             sw.Restart();
             var success2 = vt.Execute();
             sw.Stop();
-            foreach (var e in this.Messages)
+            foreach (var e in this._Messages)
                 Console.WriteLine($"{e.Message}");
-            this.Messages.Clear();
+            this._Messages.Clear();
             Console.WriteLine($"Elapsed time is {sw.ElapsedMilliseconds}ms");
 
-            Console.WriteLine($"Done {success && success2}:{this.Errors.Count}");
-            foreach (var e in this.Errors)
+            Console.WriteLine($"Done {success && success2}:{this._Errors.Count}");
+            foreach (var e in this._Errors)
                 Console.WriteLine($"{e.File}:{e.LineNumber} {e.Message}");
 
             Assert.IsTrue(success);
             Assert.IsTrue(success2);
-            Assert.AreEqual(0, this.Errors.Count);
+            Assert.AreEqual(0, this._Errors.Count);
         }
     }
 }

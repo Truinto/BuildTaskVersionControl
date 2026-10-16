@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BuildTaskVersionControl;
 using System;
 using System.Collections.Generic;
@@ -15,19 +15,19 @@ namespace BuildTaskVersionControlTests
     [TestClass]
     public class VersioningTaskTests
     {
-        private List<BuildMessageEventArgs> Messages = null!;
-        private List<BuildErrorEventArgs> Errors = null!;
-        private Mock<IBuildEngine> BuildEngine = null!;
+        private List<BuildMessageEventArgs> _Messages = null!;
+        private List<BuildErrorEventArgs> _Errors = null!;
+        private Mock<IBuildEngine> _Build_Engine = null!;
 
         [TestInitialize]
         public void Startup()
         {
             Console.WriteLine("Startup");
-            this.Messages = new();
-            this.Errors = new();
-            this.BuildEngine = new Mock<IBuildEngine>();
-            this.BuildEngine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback<BuildErrorEventArgs>(e => this.Errors.Add(e));
-            this.BuildEngine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback<BuildMessageEventArgs>(this.Messages.Add);
+            this._Messages = new();
+            this._Errors = new();
+            this._Build_Engine = new Mock<IBuildEngine>();
+            this._Build_Engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback<BuildErrorEventArgs>(e => this._Errors.Add(e));
+            this._Build_Engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback<BuildMessageEventArgs>(this._Messages.Add);
         }
 
         [TestMethod]
@@ -44,7 +44,7 @@ namespace BuildTaskVersionControlTests
             item.Setup(x => x.GetMetadata("Identity")).Returns($".\\Resources\\complete-prop.setting");
             var vt = new VersioningTask()
             {
-                BuildEngine = this.BuildEngine.Object,
+                BuildEngine = this._Build_Engine.Object,
                 InputFile = new TaskItem("input.txt"),
                 UpdateFiles = [new TaskItem("input.txt"), new TaskItem("output.txt")],
                 AutoIncrease = true,
@@ -53,14 +53,14 @@ namespace BuildTaskVersionControlTests
             var success = vt.Execute();
             Console.WriteLine($"Output: {vt.Version} = {vt.Major}.{vt.Minor}.{vt.Build}.{vt.Revision}");
 
-            foreach (var e in this.Messages)
+            foreach (var e in this._Messages)
                 Console.WriteLine($"{e.Message}");
-            Console.WriteLine($"Done {success}:{this.Errors.Count}");
-            foreach (var e in this.Errors)
+            Console.WriteLine($"Done {success}:{this._Errors.Count}");
+            foreach (var e in this._Errors)
                 Console.WriteLine($"{e.File}:{e.LineNumber} {e.Message}");
 
             Assert.IsTrue(success);
-            Assert.AreEqual(0, this.Errors.Count);
+            Assert.AreEqual(0, this._Errors.Count);
         }
     }
 }

@@ -1,15 +1,10 @@
-﻿using Microsoft.Build.Framework;
+using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Net;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace BuildTaskVersionControl
 {
@@ -118,7 +113,8 @@ namespace BuildTaskVersionControl
 
                 LogMsg("Remote update done");
                 return true;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 LogMsg($"error: {e.Message}");
                 return this.SurpressErrors;
@@ -253,7 +249,8 @@ namespace BuildTaskVersionControl
                 sw.Close();
                 LogMsg($"{(int)result.StatusCode}: {result.ReasonPhrase}", MessageImportance.Low);
                 return result.StatusCode;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 LogMsg($"Exception occured with path='{filePath}' url='{url}' {e.Message}");
                 return HttpStatusCode.BadRequest;
