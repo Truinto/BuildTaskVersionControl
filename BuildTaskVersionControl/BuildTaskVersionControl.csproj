@@ -30,22 +30,21 @@
 
 	<ItemGroup>
 		<Reference Include="System.Net.Http" Version="4.3.4" Condition="'$(TargetFramework)'=='net472'" />
-		<PackageReference Include="Microsoft.Build.Framework" Version="17.14.8" />
-		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.14.8" />
-		<PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.43" />
+        <PackageReference Include="Microsoft.Build" Version="18.11.0" />
+        <PackageReference Include="Microsoft.Build.Framework" Version="18.11.0" />
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.11.0" />
+        <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.48" />
 
-		<!--GeneratePathProperty created properties where dot is replaced with underscore-->
-		<PackageReference Include="SymbolicLinkSupport" Version="1.2.0" GeneratePathProperty="true" />
-		<PackageReference Include="SharpZipLib" Version="1.4.2" GeneratePathProperty="true" />
-		<PackageReference Include="System.Security.AccessControl" Version="6.0.1" GeneratePathProperty="true" />
-		<PackageReference Include="System.Security.Permissions" Version="9.0.8" GeneratePathProperty="true" />
-		<PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.8" GeneratePathProperty="true" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Update="@(Reference)" Pack="false" PrivateAssets="All" ExcludeAssets="runtime" CopyLocal="false" Publish="false" />
-		<PackageReference Update="@(PackageReference)" Pack="false" PrivateAssets="All" ExcludeAssets="runtime" CopyLocal="false" Publish="false" />
-	</ItemGroup>
+        <!--GeneratePathProperty created properties where dot is replaced with underscore-->
+        <PackageReference Include="SymbolicLinkSupport" Version="1.2.0" GeneratePathProperty="true" />
+        <PackageReference Include="SharpZipLib" Version="1.4.2" GeneratePathProperty="true" />
+        <PackageReference Include="System.Security.AccessControl" Version="6.0.1" GeneratePathProperty="true" />
+        <PackageReference Include="System.Security.Permissions" Version="10.0.13" GeneratePathProperty="true" />
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.13" GeneratePathProperty="true" />
+        
+        <Reference Update="@(Reference)" Pack="false" PrivateAssets="All" ExcludeAssets="runtime" CopyLocal="false" Publish="false" />
+        <PackageReference Update="@(PackageReference)" Pack="false" PrivateAssets="All" ExcludeAssets="runtime" CopyLocal="false" Publish="false" />
+    </ItemGroup>
 
 	<ItemGroup>
 		<None Remove=".gitattributes" />

@@ -1,4 +1,4 @@
-<Project Sdk="MSTest.Sdk/3.6.4">
+﻿<Project Sdk="MSTest.Sdk/3.6.4">
 
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
@@ -9,9 +9,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Build.Framework" Version="*" />
-		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="*" />
-		<PackageReference Include="Moq" Version="*" />
+		<PackageReference Include="Microsoft.Build.Framework" Version="18.11.0" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.11.0" />
+		<PackageReference Include="Moq" Version="4.21.0" />
 	</ItemGroup>
 
 	<ItemGroup>
