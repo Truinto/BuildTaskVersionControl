@@ -1,4 +1,4 @@
-﻿# BuildTaskVersionControl
+# BuildTaskVersionControl
 [![NuGet version (BuildTaskVersionControl)](https://img.shields.io/nuget/v/BuildTaskVersionControl.svg?style=flat-square)](https://www.nuget.org/packages/BuildTaskVersionControl/) \
 MSBuild Task to automate assembly versioning. Extracts a version string from one file and update it in other files.
 
@@ -29,7 +29,7 @@ MSBuild Task to automate assembly versioning. Extracts a version string from one
 * UpdateFiles: Path to files to inject with new version string. Use RegexOutput to customize logic. Default: null
 * MaxMatch: Maximum number of lines to match and replace. Matches at least once. Default: 1
 * AutoIncrease: If true, will increase revision by one before updating files. Default: false
-* TouchFiles: Update write-date when updating output files. Default: false
+* TouchFiles: Update write-date when updating output files. Default: true
 * DropRevision: Whenever to drop revision before updating files. (never, always, keep) Default: keep
 * Silent: Suppress all log output. Default: false
 * RegexInput: Regex string for the input files. Uses capture group 'version' (or the first capture) and 'suffix' (optional). Default: `"(?'version'\d+(?:\.\d+){2,3})(?'suffix'[0-9A-Za-z-]*)"`
@@ -43,6 +43,14 @@ MSBuild Task to automate assembly versioning. Extracts a version string from one
 * Build: [Output] Extracted build version only.
 * Revision: [Output] Extracted revision version only.
 * Suffix: [Output] Extracted version suffix
+
+### Default Task
+Default task that runs, if the property AutoVersion is true or VersioningTask_In has any items. Following fields change the default task only:
+* VersioningTask_In: ItemGroup, sets InputFiles.
+* VersioningTask_Out: ItemGroup, sets UpdateFiles.
+* VersioningTask_AutoIncrease: PropertyGroup, sets AutoIncrease.
+* VersioningTask_TouchFiles: PropertyGroup, sets TouchFiles.
+* VersioningTask_DropRevision: PropertyGroup, sets DropRevision.
 
 ### Item Metadata
 Files can have metadata defined, which overwrite the global setting.

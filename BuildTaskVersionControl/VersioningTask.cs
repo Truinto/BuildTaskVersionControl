@@ -1,9 +1,7 @@
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using System.Xml;
 
 namespace BuildTaskVersionControl
 {
@@ -29,7 +27,7 @@ namespace BuildTaskVersionControl
         public bool AutoIncrease { get; set; } = false;
 
         /// <summary>Update write-date when updating output files.</summary>
-        public bool TouchFiles { get; set; } = false;
+        public bool TouchFiles { get; set; } = true;
 
         /// <summary>Whenever to drop revision before updating files. (never, always, keep)</summary>
         public string DropRevision { get; set; } = "keep";
@@ -97,7 +95,8 @@ namespace BuildTaskVersionControl
         {
             try
             {
-                LogMsg($"Start VersioningTask auto={this.AutoIncrease} max={this.MaxMatch} touch={this.TouchFiles}", MessageImportance.Normal);
+                LogMsg($"Start VersioningTask auto={this.AutoIncrease} max={this.MaxMatch} " +
+                    $"touch={this.TouchFiles} revision={this.DropRevision}", MessageImportance.Normal);
 
                 _Inputs = new(this.InputFiles);
                 _Outputs = new(this.UpdateFiles);
@@ -130,7 +129,7 @@ namespace BuildTaskVersionControl
             }
             catch (Exception e)
             {
-                this.Log.LogError(e.Message);
+                this.Log.LogError(e.ToString());
                 return false;
             }
         }

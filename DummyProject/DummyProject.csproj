@@ -19,7 +19,7 @@
 			<_In Include="$(MSBuildProjectName).csproj" />
 			<_Out Include="$(MSBuildProjectName).csproj" />
 		</ItemGroup>
-		<VersioningTask InputFiles="@(_In)" UpdateFiles="@(_Out)" AutoIncrease="true">
+		<VersioningTask InputFiles="@(_In)" UpdateFiles="@(_Out)" AutoIncrease="true" DropRevision="" >
 			<Output TaskParameter="VersionFull" PropertyName="Version" />
 			<Output TaskParameter="Version" ItemName="OutputVersionText" />
 		</VersioningTask>
