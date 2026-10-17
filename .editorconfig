@@ -75,6 +75,9 @@ dotnet_diagnostic.CA1806.severity = none
 # CA2211: Nicht konstante Felder dürfen nicht sichtbar sein
 dotnet_diagnostic.CA2211.severity = none
 
+# Roslyn RCSxxxx
+dotnet_analyzer_diagnostic.category-roslynator.severity = none
+
 #### .NET-Codierungskonventionen ####
 
 # Using-Direktiven organisieren
@@ -324,14 +327,3 @@ dotnet_naming_style.begins_with_t.capitalization = pascal_case
 dotnet_naming_style.begins_with_t.word_separator = _
 dotnet_naming_style.begins_with_t.required_prefix = T
 dotnet_naming_style.begins_with_t.required_suffix = 
-
-# Roslyn
-dotnet_diagnostic.RCS1001.severity = none
-dotnet_diagnostic.RCS1037.severity = none
-dotnet_diagnostic.RCS1049.severity = none
-dotnet_diagnostic.RCS1075.severity = none
-dotnet_diagnostic.RCS1123.severity = none
-dotnet_diagnostic.RCS1146.severity = none
-dotnet_diagnostic.RCS1163.severity = none
-dotnet_diagnostic.RCS1196.severity = none
-dotnet_diagnostic.RCS1240.severity = none
